@@ -11,6 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import UserMenu from "@/components/UserMenu/UserMenu";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -24,7 +25,6 @@ const Sidebar = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side={"left"} className="p-0">
-
         <SheetHeader className="h-32 bg-blue-400 flex items-center justify-center">
           <Link href={"/"}>
             <SheetTitle className="text-4xl tracking-widest">
@@ -35,14 +35,13 @@ const Sidebar = () => {
 
         <SheetBody className="grow p-0">
           <ScrollArea className="h-[calc(100vh-256px)]">
-            <span>asdasd dw wd wd </span>
+            <Link href={"/"}>Home</Link>
           </ScrollArea>
         </SheetBody>
 
         <SheetFooter className="h-32 bg-blue-400 flex items-center !justify-center">
-          <span>footer</span>
+          <UserMenu />
         </SheetFooter>
-
       </SheetContent>
     </Sheet>
   );

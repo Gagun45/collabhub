@@ -9,4 +9,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   ...authConfig,
+  events: {
+    async createUser({ user }) {
+      if (user.id && user.email) {
+        const username = user.email.split("@")[0];
+        await prisma.userInformation.create({
+          data: {
+            userId: user.id,
+            username,
+            name: user.name ?? "",
+            avatarUrl: user.image ?? "",
+          },
+        });
+      }
+    },
+  },
 });

@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  accounts      Account[]
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?        @map("email_verified")
+  image           String?
+  accounts        Account[]
+  UserInformation UserInformation?
 
   @@map("users")
 }
@@ -42,4 +43,15 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
+}
+
+model UserInformation {
+  userId    String    @unique @map("user_id")
+  username  String?   @unique
+  avatarUrl String?   @map("avatar_url")
+  name      String?
+  birthDate DateTime? @map("birth_date")
+  location  String?
+  bio       String?
+  user      User      @relation(fields: [userId], references: [id])
 }
