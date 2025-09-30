@@ -13,10 +13,16 @@ import {
 } from "../ui/dropdown-menu";
 import { Button, buttonVariants } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import useSWR from "swr";
+import { getAvatarUrl } from "@/lib/actions/user.actions";
 
 const UserMenu = () => {
-  const { data } = useSession();
-  if (!data?.user)
+  const { data: session, status } = useSession();
+  const { data: urlData } = useSWR("profile", async () => getAvatarUrl());
+
+  if (status === "loading") return null;
+
+  if (!session?.user)
     return (
       <Link className={buttonVariants({ variant: "outline" })} href="/login">
         Login
@@ -26,7 +32,7 @@ const UserMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
-          <AvatarImage src={data.user.image?.toString()} alt="@reui" />
+          <AvatarImage src={urlData?.avatarUrl} alt="@reui" />
           <AvatarFallback>CH</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -34,7 +40,7 @@ const UserMenu = () => {
         <DropdownMenuLabel>Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer">
             <Link href="/profile">Profile</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
@@ -42,7 +48,7 @@ const UserMenu = () => {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>{data.user?.email}</DropdownMenuLabel>
+        <DropdownMenuLabel>{session.user?.email}</DropdownMenuLabel>
       </DropdownMenuContent>
     </DropdownMenu>
   );

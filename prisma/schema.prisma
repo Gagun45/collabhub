@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(cuid())
+  id              Int              @id @default(autoincrement())
   name            String?
   email           String?          @unique
   emailVerified   DateTime?        @map("email_verified")
@@ -27,7 +27,7 @@ model User {
 
 model Account {
   id                String  @id @default(cuid())
-  userId            String  @map("user_id")
+  userId            Int     @map("user_id")
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
@@ -46,12 +46,13 @@ model Account {
 }
 
 model UserInformation {
-  userId    String    @unique @map("user_id")
-  username  String?   @unique
+  userId    Int       @unique @map("user_id")
+  userPid   String    @unique
+  username  String   @unique
   avatarUrl String?   @map("avatar_url")
   name      String?
   birthDate DateTime? @map("birth_date")
   location  String?
   bio       String?
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
