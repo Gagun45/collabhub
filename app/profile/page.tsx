@@ -1,17 +1,41 @@
-import { getProfilePageUser } from "@/lib/actions/user.actions";
+"use client";
+
 import Image from "next/image";
 import DefaultAvatar from "@/public/default-avatar.png";
-import H1 from "@/components/General/H1";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EditProfileForm from "@/forms/EditProfileForm/EditProfileForm";
+import { useGetProfilePageDataQuery } from "@/redux/apis/profile.api";
+import LoadingIndicator from "@/components/General/LoadingIndicator";
 
-const ProfilePage = async () => {
-  const user = await getProfilePageUser();
-  if (!user) return <main>User not found</main>;
+const ProfilePage = () => {
+  const { data, isLoading, isError } = useGetProfilePageDataQuery();
+
+  if (isLoading)
+    return (
+      <main>
+        <LoadingIndicator />
+      </main>
+    );
+
+  if (isError || !data)
+    return (
+      <main>
+        <span className="text-center">Unexpected error occured.</span>
+      </main>
+    );
+
+  if (!data.data)
+    return (
+      <main>
+        <span className="text-center">{data.message}</span>
+      </main>
+    );
+
+  const user = data.data;
 
   return (
     <main className="space-y-8">
-      <H1>Profile page</H1>
+      <h1>Profile page</h1>
       <Card>
         <CardContent className="space-y-4 w-72">
           <div className="relative size-36 lg:size-48 mx-auto">

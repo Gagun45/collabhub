@@ -13,12 +13,11 @@ import {
 } from "../ui/dropdown-menu";
 import { Button, buttonVariants } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import useSWR from "swr";
-import { getAvatarUrl } from "@/lib/actions/user.actions";
+import { useGetAvatarUrlQuery } from "@/redux/apis/profile.api";
 
 const UserMenu = () => {
   const { data: session, status } = useSession();
-  const { data: urlData } = useSWR("profile", async () => getAvatarUrl());
+  const { data: avatarData } = useGetAvatarUrlQuery();
 
   if (status === "loading") return null;
 
@@ -32,7 +31,7 @@ const UserMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
-          <AvatarImage src={urlData?.avatarUrl} alt="@reui" />
+          <AvatarImage src={avatarData?.avatarUrl} alt="@reui" />
           <AvatarFallback>CH</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
