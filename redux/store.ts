@@ -6,5 +6,7 @@ export const store = configureStore({
     [profileApi.reducerPath]: profileApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(profileApi.middleware),
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }).concat(profileApi.middleware),
 });

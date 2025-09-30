@@ -1,7 +1,6 @@
 "use client";
 
 import type { editProfileSchemaType } from "@/lib/types";
-import type { Prisma } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editProfileSchema } from "@/lib/zod-schemas";
@@ -12,15 +11,17 @@ import LocationInput from "./LocationInput/LocationInput";
 import NameInput from "./NameInput/NameInput";
 import BioInput from "./BioInput/BioInput";
 import BirthDateInput from "./BirthDateInput/BirthDateInput";
+import {
+  useGetProfilePageDataQuery,
+  useUpdateProfilePageDataMutation,
+} from "@/redux/apis/profile.api";
 
-interface Props {
-  userInformation: Prisma.UserInformationGetPayload<{
-    omit: { userId: true; userPid: true; avatarUrl: true };
-  }>;
-}
-
-const EditProfileForm = ({ userInformation }: Props) => {
-  const { bio, birthDate, location, name, username } = userInformation;
+const EditProfileForm = () => {
+  const [updateProfile, { isLoading: isSubmitting }] =
+    useUpdateProfilePageDataMutation();
+  const { data: profileData } = useGetProfilePageDataQuery();
+  const { bio, birthDate, location, name, username } =
+    profileData!.data!.UserInformation!;
 
   const form = useForm<editProfileSchemaType>({
     resolver: zodResolver(editProfileSchema),
@@ -34,20 +35,35 @@ const EditProfileForm = ({ userInformation }: Props) => {
   });
 
   const onSubmit = (values: editProfileSchemaType) => {
-    console.log(values);
+    updateProfile({ values });
   };
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
-        <UsernameInput />
-        <NameInput />
-        <LocationInput />
-        <BioInput />
-        <BirthDateInput />
-        <Button type="button" onClick={() => form.reset()}>
-          Reset
-        </Button>
-        <Button>Submit</Button>
+        <fieldset disabled={isSubmitting}>
+          <UsernameInput />
+          <NameInput />
+          <LocationInput />
+          <BioInput />
+          <BirthDateInput />
+          <Button
+            type="button"
+            onClick={() =>
+              form.reset({
+                bio: bio ?? "",
+                location: location ?? "",
+                name: name ?? "",
+                username: username ?? "",
+                birthDate: birthDate ?? null,
+              })
+            }
+          >
+            Reset
+          </Button>
+          <Button disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save"}
+          </Button>
+        </fieldset>
       </form>
     </Form>
   );

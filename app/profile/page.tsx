@@ -40,6 +40,7 @@ const ProfilePage = () => {
         <CardContent className="space-y-4 w-72">
           <div className="relative size-36 lg:size-48 mx-auto">
             <Image
+              priority
               src={
                 user.UserInformation?.avatarUrl ?? user.image ?? DefaultAvatar
               }
@@ -56,7 +57,7 @@ const ProfilePage = () => {
           <CardTitle className="tracking-wider">Profile Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <EditProfileForm userInformation={user.UserInformation!} />
+          <EditProfileForm />
         </CardContent>
       </Card>
     </main>

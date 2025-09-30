@@ -1,12 +1,12 @@
 "use server";
 
 import { prisma } from "../prisma";
-import { getUser } from "./helper";
-import type { ProfilePageDataType } from "../types";
+import { getAuthUser } from "./helper";
+import type { editProfileSchemaType, ProfilePageDataType } from "../types";
 
 export const getAvatarUrl = async (): Promise<{ avatarUrl: string }> => {
   try {
-    const user = await getUser();
+    const user = await getAuthUser();
     if (!user) return { avatarUrl: "" };
     const userBio = await prisma.userInformation.findUnique({
       where: { userId: user.id },
@@ -20,15 +20,38 @@ export const getAvatarUrl = async (): Promise<{ avatarUrl: string }> => {
 
 export const getProfilePageData = async (): Promise<ProfilePageDataType> => {
   try {
-    const user = await getUser();
-    if (!user) return { success: false, message: "Access denied", data: null };
+    const user = await getAuthUser();
+    if (!user)
+      return { success: false, message: "Authorized only", data: null };
     const profilePageData = await prisma.user.findUnique({
       where: { id: user.id },
       include: { UserInformation: true },
     });
     return { success: true, message: "", data: profilePageData };
   } catch (error) {
-    console.log("Get profile page user error: ", error);
+    console.log("Get profile page data error: ", error);
     return { success: false, message: "Something went wrong", data: null };
+  }
+};
+
+export const updateProfilePageData = async (values: editProfileSchemaType) => {
+  try {
+    const user = await getAuthUser();
+    if (!user) return { success: false, message: "Authorized only" };
+    const { bio, birthDate, location, name, username } = values;
+    await prisma.userInformation.update({
+      where: { userId: user.id },
+      data: {
+        bio,
+        location,
+        name,
+        username,
+        birthDate,
+      },
+    });
+    return { success: true, message: "" };
+  } catch (error) {
+    console.log("Update profile page data error: ", error);
+    return { success: false, message: "Something went wrong" };
   }
 };
