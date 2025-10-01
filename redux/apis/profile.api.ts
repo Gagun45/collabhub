@@ -15,11 +15,15 @@ export const profileApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ["avatarUrl", "profilePageData"],
   endpoints: (builder) => ({
-    getAvatarUrl: builder.query<{ avatarUrl: string }, void>({
+    getAvatarUrl: builder.query<
+      SuccessAndMessageType & { avatarUrl: string },
+      void
+    >({
       queryFn: async () => {
         try {
-          const avatarUrl = await getAvatarUrl();
-          return { data: avatarUrl };
+          const result = await getAvatarUrl();
+          if (!result.success) return { error: result.message };
+          return { data: result };
         } catch {
           return { error: "Unexpected error" };
         }
@@ -29,8 +33,9 @@ export const profileApi = createApi({
     getProfilePageData: builder.query<ProfilePageDataType, void>({
       queryFn: async () => {
         try {
-          const data = await getProfilePageData();
-          return { data };
+          const result = await getProfilePageData();
+          if (!result.success) return { error: result.message };
+          return { data: result };
         } catch {
           return { error: "Unexpected error" };
         }
@@ -43,26 +48,13 @@ export const profileApi = createApi({
     >({
       queryFn: async ({ values }) => {
         try {
-          const data = await updateProfilePageData(values);
-          return { data };
+          const result = await updateProfilePageData(values);
+          if (!result.success) {
+            return { error: result.message };
+          }
+          return { data: result };
         } catch {
           return { error: "Unexpected error" };
-        }
-      },
-      onQueryStarted: async ({ values }, { dispatch, queryFulfilled }) => {
-        const patch = dispatch(
-          profileApi.util.updateQueryData(
-            "getProfilePageData",
-            undefined,
-            (draft) => {
-              Object.assign(draft, values);
-            }
-          )
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patch.undo();
         }
       },
       invalidatesTags: ["profilePageData"],

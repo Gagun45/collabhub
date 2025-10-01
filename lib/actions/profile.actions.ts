@@ -2,19 +2,31 @@
 
 import { prisma } from "../prisma";
 import { getAuthUser } from "./helper";
-import type { editProfileSchemaType, ProfilePageDataType } from "../types";
+import type {
+  editProfileSchemaType,
+  ProfilePageDataType,
+  SuccessAndMessageType,
+} from "../types";
+import { Prisma } from "@prisma/client";
 
-export const getAvatarUrl = async (): Promise<{ avatarUrl: string }> => {
+export const getAvatarUrl = async (): Promise<
+  SuccessAndMessageType & { avatarUrl: string }
+> => {
   try {
     const user = await getAuthUser();
-    if (!user) return { avatarUrl: "" };
+    if (!user)
+      return { success: false, message: "Authorized only", avatarUrl: "" };
     const userBio = await prisma.userInformation.findUnique({
       where: { userId: user.id },
     });
-    return { avatarUrl: userBio?.avatarUrl ?? user.image ?? "" };
+    return {
+      success: true,
+      message: "Avatar url fetched",
+      avatarUrl: userBio?.avatarUrl ?? user.image ?? "",
+    };
   } catch (error) {
     console.log("Get avatar url error", error);
-    return { avatarUrl: "" };
+    return { success: false, message: "Something went wrong", avatarUrl: "" };
   }
 };
 
@@ -34,7 +46,9 @@ export const getProfilePageData = async (): Promise<ProfilePageDataType> => {
   }
 };
 
-export const updateProfilePageData = async (values: editProfileSchemaType) => {
+export const updateProfilePageData = async (
+  values: editProfileSchemaType
+): Promise<SuccessAndMessageType> => {
   try {
     const user = await getAuthUser();
     if (!user) return { success: false, message: "Authorized only" };
@@ -49,9 +63,14 @@ export const updateProfilePageData = async (values: editProfileSchemaType) => {
         birthDate,
       },
     });
-    return { success: true, message: "" };
-  } catch (error) {
-    console.log("Update profile page data error: ", error);
+    return { success: true, message: "Profile updated" };
+  } catch (err) {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      return { success: false, message: "Username already taken" };
+    }
     return { success: false, message: "Something went wrong" };
   }
 };

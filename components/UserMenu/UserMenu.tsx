@@ -31,8 +31,10 @@ const UserMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
-          <AvatarImage src={avatarData?.avatarUrl} alt="@reui" />
-          <AvatarFallback>CH</AvatarFallback>
+          <AvatarImage src={avatarData?.avatarUrl} alt="User avatar" />
+          <AvatarFallback>
+            {session.user.email?.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

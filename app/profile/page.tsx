@@ -8,7 +8,12 @@ import { useGetProfilePageDataQuery } from "@/redux/apis/profile.api";
 import LoadingIndicator from "@/components/General/LoadingIndicator";
 
 const ProfilePage = () => {
-  const { data, isLoading, isError } = useGetProfilePageDataQuery();
+  const {
+    data: profileData,
+    isLoading,
+    isError,
+    error,
+  } = useGetProfilePageDataQuery();
 
   if (isLoading)
     return (
@@ -17,21 +22,20 @@ const ProfilePage = () => {
       </main>
     );
 
-  if (isError || !data)
+  if (isError)
     return (
       <main>
-        <span className="text-center">Unexpected error occured.</span>
+        <span className="text-center">{error as string}</span>
       </main>
     );
 
-  if (!data.data)
+  if (!profileData?.data)
     return (
       <main>
-        <span className="text-center">{data.message}</span>
+        <span>Something went wrong.</span>
       </main>
     );
-
-  const user = data.data;
+  const user = profileData.data;
 
   return (
     <main className="space-y-8">

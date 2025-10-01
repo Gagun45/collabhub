@@ -15,6 +15,8 @@ import {
   useGetProfilePageDataQuery,
   useUpdateProfilePageDataMutation,
 } from "@/redux/apis/profile.api";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 const EditProfileForm = () => {
   const [updateProfile, { isLoading: isSubmitting }] =
@@ -33,36 +35,56 @@ const EditProfileForm = () => {
       birthDate: birthDate ?? null,
     },
   });
+  useEffect(() => {
+    form.reset({
+      bio: bio ?? "",
+      location: location ?? "",
+      name: name ?? "",
+      username: username ?? "",
+      birthDate: birthDate ?? null,
+    });
+  }, [bio, location, name, username, birthDate, form]);
 
-  const onSubmit = (values: editProfileSchemaType) => {
-    updateProfile({ values });
+  const onSubmit = async (values: editProfileSchemaType) => {
+    try {
+      await updateProfile({ values }).unwrap();
+      toast.success("Profile updated");
+    } catch (error) {
+      const err = error as string;
+      toast.error(err);
+      form.reset();
+    }
   };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
-        <fieldset disabled={isSubmitting}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+        <fieldset disabled={isSubmitting} className="space-y-4">
           <UsernameInput />
           <NameInput />
           <LocationInput />
           <BioInput />
           <BirthDateInput />
-          <Button
-            type="button"
-            onClick={() =>
-              form.reset({
-                bio: bio ?? "",
-                location: location ?? "",
-                name: name ?? "",
-                username: username ?? "",
-                birthDate: birthDate ?? null,
-              })
-            }
-          >
-            Reset
-          </Button>
-          <Button disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save"}
-          </Button>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <Button
+              disabled={!form.formState.isDirty}
+              type="button"
+              onClick={() =>
+                form.reset({
+                  bio: bio ?? "",
+                  location: location ?? "",
+                  name: name ?? "",
+                  username: username ?? "",
+                  birthDate: birthDate ?? null,
+                })
+              }
+            >
+              Reset
+            </Button>
+            <Button disabled={isSubmitting || !form.formState.isDirty}>
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </fieldset>
       </form>
     </Form>
