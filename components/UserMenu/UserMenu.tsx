@@ -16,10 +16,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGetAvatarUrlQuery } from "@/redux/apis/profile.api";
 
 const UserMenu = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const { data: avatarData } = useGetAvatarUrlQuery();
-
-  if (status === "loading") return null;
 
   if (!session?.user)
     return (
