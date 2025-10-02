@@ -42,6 +42,12 @@ const UserMenu = () => {
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link href="/profile">Profile</Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href="/dashboard">Dashboard</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link href="/my-teams">My Teams</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem>
             <Button onClick={() => signOut()}>Logout</Button>
           </DropdownMenuItem>

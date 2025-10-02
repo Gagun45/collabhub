@@ -1,0 +1,18 @@
+'use client'
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const LeftCard = () => {
+  return (
+    <Card className="w-72">
+      <CardHeader>
+        <CardTitle className="tracking-wider mx-auto">Team Name</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 flex flex-col">
+        <Button>Placeholder</Button>
+      </CardContent>
+    </Card>
+  );
+};
+export default LeftCard;

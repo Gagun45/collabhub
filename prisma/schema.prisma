@@ -21,12 +21,14 @@ model User {
   image           String?
   accounts        Account[]
   UserInformation UserInformation?
+  Teams           Team[]
+  TeamMember      TeamMember[]
 
   @@map("users")
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                Int     @id @default(autoincrement())
   userId            Int     @map("user_id")
   type              String
   provider          String
@@ -48,11 +50,30 @@ model Account {
 model UserInformation {
   userId    Int       @unique @map("user_id")
   userPid   String    @unique
-  username  String   @unique
+  username  String    @unique
   avatarUrl String?   @map("avatar_url")
   name      String?
   birthDate DateTime? @map("birth_date")
   location  String?
   bio       String?
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Team {
+  id          Int          @id @default(autoincrement())
+  teamPid     String       @unique
+  name        String
+  inviteToken String       @unique @default(nanoid(10))
+  creatorId   Int
+  creator     User         @relation(fields: [creatorId], references: [id])
+  TeamMember  TeamMember[]
+}
+
+model TeamMember {
+  teamId Int
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+  team   Team @relation(fields: [teamId], references: [id])
+
+  @@unique([teamId, userId])
 }

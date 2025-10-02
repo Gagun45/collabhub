@@ -19,3 +19,10 @@ export const editProfileSchema = z.object({
       { message: "Wrong date" }
     ),
 });
+
+export const newTeamSchema = z.object({
+  name: z
+    .string()
+    .min(5, "Team name must be at least 5 chars long")
+    .max(64, "Team name can be at most 64 chars long"),
+});
