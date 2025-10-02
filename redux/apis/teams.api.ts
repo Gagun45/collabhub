@@ -14,7 +14,7 @@ export const teamsApi = createApi({
   tagTypes: ["myTeams"],
   endpoints: (builder) => ({
     createNewTeam: builder.mutation<
-      SuccessAndMessageType & { team: Team | null },
+      SuccessAndMessageType,
       { values: newTeamSchemaType }
     >({
       queryFn: async ({ values }) => {

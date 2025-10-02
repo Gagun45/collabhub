@@ -23,6 +23,7 @@ model User {
   UserInformation UserInformation?
   Teams           Team[]
   TeamMember      TeamMember[]
+  Projects        Project[]
 
   @@map("users")
 }
@@ -66,7 +67,8 @@ model Team {
   inviteToken String       @unique @default(nanoid(10))
   creatorId   Int
   creator     User         @relation(fields: [creatorId], references: [id])
-  TeamMember  TeamMember[]
+  TeamMembers TeamMember[]
+  Projects    Project[]
 }
 
 model TeamMember {
@@ -76,4 +78,13 @@ model TeamMember {
   team   Team @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, userId])
+}
+
+model Project {
+  id          Int    @id @default(autoincrement())
+  title       String
+  teamId      Int
+  team        Team   @relation(fields: [teamId], references: [id])
+  createdById Int
+  creator     User   @relation(fields: [createdById], references: [id])
 }

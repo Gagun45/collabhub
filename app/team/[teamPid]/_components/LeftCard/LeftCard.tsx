@@ -1,25 +1,30 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetTeamByTeamPidQuery } from "@/redux/apis/teams.api";
+import {
+  useGetTeamByTeamPidQuery,
+} from "@/redux/apis/teams.api";
+import NewProjectDialog from "./NewProjectDialog/NewProjectDialog";
+import Projects from "./Projects/Projects";
 
 interface Props {
   teamPid: string;
 }
 
 const LeftCard = ({ teamPid }: Props) => {
-  const { data } = useGetTeamByTeamPidQuery({ teamPid });
-  const { team } = data!;
+  const { data: teamData } = useGetTeamByTeamPidQuery({ teamPid });
+  const { team } = teamData!;
+
   return (
-    <Card className="w-72">
+    <Card className="w-84 shrink-0">
       <CardHeader>
-        <CardTitle className="tracking-wider mx-auto">
+        <CardTitle className="tracking-wider mx-auto flex flex-col">
           Team {team?.name}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 flex flex-col">
-        <Button>Placeholder</Button>
+        <Projects teamPid={teamPid} />
+        <NewProjectDialog teamPid={teamPid} />
       </CardContent>
     </Card>
   );

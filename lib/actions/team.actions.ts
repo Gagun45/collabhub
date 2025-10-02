@@ -9,11 +9,10 @@ import { SMTH_WENT_WRONG } from "../constants";
 
 export const createNewTeam = async (
   values: newTeamSchemaType
-): Promise<SuccessAndMessageType & { team: Team | null }> => {
+): Promise<SuccessAndMessageType> => {
   try {
     const user = await getAuthUser();
-    if (!user)
-      return { success: false, message: "Authorized only", team: null };
+    if (!user) return { success: false, message: "Authorized only" };
     const { name } = values;
     const result = await prisma.$transaction(async (tx) => {
       const team = await tx.team.create({
@@ -22,12 +21,12 @@ export const createNewTeam = async (
       await tx.teamMember.create({
         data: { teamId: team.id, userId: user.id },
       });
-      return { success: true, message: "Team created", team };
+      return { success: true, message: "Team created" };
     });
     return result;
   } catch (error) {
     console.log("Create new team error: ", error);
-    return { success: false, message: SMTH_WENT_WRONG, team: null };
+    return { success: false, message: SMTH_WENT_WRONG };
   }
 };
 
@@ -38,7 +37,7 @@ export const getMyTeams = async (): Promise<
     const user = await getAuthUser();
     if (!user) return { success: false, message: "Authorized only", teams: [] };
     const teams = await prisma.team.findMany({
-      where: { TeamMember: { some: { userId: user.id } } },
+      where: { TeamMembers: { some: { userId: user.id } } },
     });
     return { success: true, message: "My teams fetched", teams };
   } catch (error) {

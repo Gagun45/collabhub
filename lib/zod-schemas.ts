@@ -26,3 +26,10 @@ export const newTeamSchema = z.object({
     .min(5, "Team name must be at least 5 chars long")
     .max(64, "Team name can be at most 64 chars long"),
 });
+
+export const newProjectSchema = z.object({
+  title: z
+    .string()
+    .min(5, "Project title must be at least 5 chars long")
+    .max(64, "Project title can be at most 64 chars long"),
+});

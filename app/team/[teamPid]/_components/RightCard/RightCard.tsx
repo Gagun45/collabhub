@@ -1,10 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useSearchParams } from "next/navigation";
 
 const RightCard = () => {
+  const projectId = useSearchParams().get("projectId");
   return (
     <Card className="w-full">
       <CardContent className="space-y-4">
         <h2 className="text-center break-words">right dcard</h2>
+        <h3>{projectId}</h3>
       </CardContent>
     </Card>
   );
