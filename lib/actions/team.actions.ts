@@ -5,6 +5,7 @@ import { prisma } from "../prisma";
 import type { newTeamSchemaType, SuccessAndMessageType } from "../types";
 import { getAuthUser } from "./helper";
 import type { Team } from "@prisma/client";
+import { SMTH_WENT_WRONG } from "../constants";
 
 export const createNewTeam = async (
   values: newTeamSchemaType
@@ -26,7 +27,7 @@ export const createNewTeam = async (
     return result;
   } catch (error) {
     console.log("Create new team error: ", error);
-    return { success: false, message: "Something went wrong", team: null };
+    return { success: false, message: SMTH_WENT_WRONG, team: null };
   }
 };
 
@@ -39,9 +40,22 @@ export const getMyTeams = async (): Promise<
     const teams = await prisma.team.findMany({
       where: { TeamMember: { some: { userId: user.id } } },
     });
-    return { success: true, message: "", teams };
+    return { success: true, message: "My teams fetched", teams };
   } catch (error) {
     console.log("Get my teams error: ", error);
-    return { success: false, message: "Something went wrong", teams: [] };
+    return { success: false, message: SMTH_WENT_WRONG, teams: [] };
+  }
+};
+
+export const getTeamByTeamPid = async (
+  teamPid: string
+): Promise<SuccessAndMessageType & { team: Team | null }> => {
+  try {
+    const team = await prisma.team.findUnique({ where: { teamPid } });
+    if (!team) return { success: false, message: "Team not found", team: null };
+    return { success: true, message: "Team fetched", team };
+  } catch (error) {
+    console.log("Get team by team pid: ", error);
+    return { success: false, message: SMTH_WENT_WRONG, team: null };
   }
 };

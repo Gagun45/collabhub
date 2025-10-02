@@ -1,4 +1,9 @@
-import { createNewTeam, getMyTeams } from "@/lib/actions/team.actions";
+import {
+  createNewTeam,
+  getMyTeams,
+  getTeamByTeamPid,
+} from "@/lib/actions/team.actions";
+import { UNEXPECTED_ERROR } from "@/lib/constants";
 import type { newTeamSchemaType, SuccessAndMessageType } from "@/lib/types";
 import type { Team } from "@prisma/client";
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
@@ -30,12 +35,30 @@ export const teamsApi = createApi({
           if (!result.success) return { error: result.message };
           return { data: result };
         } catch {
-          return { error: "Unexpected error" };
+          return { error: UNEXPECTED_ERROR };
         }
       },
       providesTags: ["myTeams"],
     }),
+    getTeamByTeamPid: builder.query<
+      SuccessAndMessageType & { team: Team | null },
+      { teamPid: string }
+    >({
+      queryFn: async ({ teamPid }) => {
+        try {
+          const result = await getTeamByTeamPid(teamPid);
+          if (!result.success) return { error: result.message };
+          return { data: result };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+    }),
   }),
 });
 
-export const { useCreateNewTeamMutation, useGetMyTeamsQuery } = teamsApi;
+export const {
+  useCreateNewTeamMutation,
+  useGetMyTeamsQuery,
+  useGetTeamByTeamPidQuery,
+} = teamsApi;

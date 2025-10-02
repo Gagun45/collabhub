@@ -8,6 +8,7 @@ import type {
   SuccessAndMessageType,
 } from "../types";
 import { Prisma } from "@prisma/client";
+import { SMTH_WENT_WRONG } from "../constants";
 
 export const getAvatarUrl = async (): Promise<
   SuccessAndMessageType & { avatarUrl: string }
@@ -26,7 +27,7 @@ export const getAvatarUrl = async (): Promise<
     };
   } catch (error) {
     console.log("Get avatar url error", error);
-    return { success: false, message: "Something went wrong", avatarUrl: "" };
+    return { success: false, message: SMTH_WENT_WRONG, avatarUrl: "" };
   }
 };
 
@@ -39,10 +40,14 @@ export const getProfilePageData = async (): Promise<ProfilePageDataType> => {
       where: { id: user.id },
       include: { UserInformation: true },
     });
-    return { success: true, message: "", data: profilePageData };
+    return {
+      success: true,
+      message: "Profile data fetched",
+      data: profilePageData,
+    };
   } catch (error) {
     console.log("Get profile page data error: ", error);
-    return { success: false, message: "Something went wrong", data: null };
+    return { success: false, message: SMTH_WENT_WRONG, data: null };
   }
 };
 
@@ -71,6 +76,6 @@ export const updateProfilePageData = async (
     ) {
       return { success: false, message: "Username already taken" };
     }
-    return { success: false, message: "Something went wrong" };
+    return { success: false, message: SMTH_WENT_WRONG };
   }
 };
