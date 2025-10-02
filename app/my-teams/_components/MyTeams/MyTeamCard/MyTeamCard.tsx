@@ -1,6 +1,10 @@
-const MyTeamCard = () => {
-  return (
-    <div>MyTeamCard</div>
-  )
+import type { Team } from "@prisma/client";
+
+interface Props {
+  team: Team;
 }
-export default MyTeamCard
+
+const MyTeamCard = ({ team }: Props) => {
+  return <div className="w-full border-2 border-black">{team.name}</div>;
+};
+export default MyTeamCard;

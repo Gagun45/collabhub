@@ -9,8 +9,6 @@ export default auth(async function middleware(req) {
   const isLoggedIn = !!req.auth;
   const pathname = req.nextUrl.pathname;
 
-  console.log(pathname);
-
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
   const isProtectedRoute = PROTECTED_ROUTES.includes(pathname);
 

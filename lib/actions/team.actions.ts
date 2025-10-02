@@ -11,9 +11,9 @@ export const createNewTeam = async (
 ): Promise<SuccessAndMessageType & { team: Team | null }> => {
   try {
     const user = await getAuthUser();
-    const { name } = values;
     if (!user)
       return { success: false, message: "Authorized only", team: null };
+    const { name } = values;
     const result = await prisma.$transaction(async (tx) => {
       const team = await tx.team.create({
         data: { name, teamPid: nanoid(5), creatorId: user.id },
@@ -27,5 +27,21 @@ export const createNewTeam = async (
   } catch (error) {
     console.log("Create new team error: ", error);
     return { success: false, message: "Something went wrong", team: null };
+  }
+};
+
+export const getMyTeams = async (): Promise<
+  SuccessAndMessageType & { teams: Team[] }
+> => {
+  try {
+    const user = await getAuthUser();
+    if (!user) return { success: false, message: "Authorized only", teams: [] };
+    const teams = await prisma.team.findMany({
+      where: { TeamMember: { some: { userId: user.id } } },
+    });
+    return { success: true, message: "", teams };
+  } catch (error) {
+    console.log("Get my teams error: ", error);
+    return { success: false, message: "Something went wrong", teams: [] };
   }
 };
