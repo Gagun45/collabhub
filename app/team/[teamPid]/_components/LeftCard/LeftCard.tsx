@@ -1,9 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  useGetTeamByTeamPidQuery,
-} from "@/redux/apis/teams.api";
+import { useGetTeamByTeamPidQuery } from "@/redux/apis/teams.api";
 import NewProjectDialog from "./NewProjectDialog/NewProjectDialog";
 import Projects from "./Projects/Projects";
 

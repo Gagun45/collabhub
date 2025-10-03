@@ -45,7 +45,7 @@ const NewTeamForm = ({ onCreate, isLoading }: Props) => {
               <FormItem>
                 <FormLabel>Team name</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} autoFocus/>
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -1,13 +1,43 @@
+import LoadingIndicator from "@/components/General/LoadingIndicator";
 import { Card, CardContent } from "@/components/ui/card";
+import { useGetProjectByProjectPidQuery } from "@/redux/apis/projects.api";
 import { useSearchParams } from "next/navigation";
 
 const RightCard = () => {
-  const projectId = useSearchParams().get("projectId");
+  const projectPid = useSearchParams().get("projectPid");
+  const { data, isLoading, error, isError } = useGetProjectByProjectPidQuery(
+    { projectPid: projectPid ?? "" },
+    { skip: !projectPid }
+  );
+
+  if (isLoading)
+    return (
+      <Card className="w-full">
+        <CardContent className="space-y-4">
+          <LoadingIndicator />
+        </CardContent>
+      </Card>
+    );
+
+  if (isError)
+    return (
+      <Card className="w-full">
+        <CardContent className="space-y-4">{error as string}</CardContent>
+      </Card>
+    );
+
+  if (!data)
+    return (
+      <Card className="w-full">
+        <CardContent className="space-y-4">Choose a project</CardContent>
+      </Card>
+    );
+
+  const project = data.project;
   return (
     <Card className="w-full">
       <CardContent className="space-y-4">
-        <h2 className="text-center break-words">right dcard</h2>
-        <h3>{projectId}</h3>
+        <h2>{project?.title}</h2>
       </CardContent>
     </Card>
   );

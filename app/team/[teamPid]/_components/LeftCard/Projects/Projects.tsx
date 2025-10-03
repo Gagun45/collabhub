@@ -11,16 +11,17 @@ const Projects = ({ teamPid }: Props) => {
   const { data: projectsData, isLoading } = useGetTeamProjectsByTeamPidQuery({
     teamPid,
   });
-  const activeProjectId = useSearchParams().get("projectId");
-  if (isLoading) return <LoadingIndicator />;
+  const activeProjectPid = useSearchParams().get("projectPid");
+  if (isLoading) return <LoadingIndicator/>;
   const { projects } = projectsData!;
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
+      {projects.length === 0 && <span className="text-center">The team has no projects yet!</span>}
       {projects.map((project) => (
         <ProjectLink
           key={project.id}
           project={project}
-          activeProjectId={activeProjectId}
+          activeProjectPid={activeProjectPid}
         />
       ))}
     </div>

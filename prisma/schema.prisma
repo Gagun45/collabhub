@@ -69,6 +69,8 @@ model Team {
   creator     User         @relation(fields: [creatorId], references: [id])
   TeamMembers TeamMember[]
   Projects    Project[]
+
+  @@map("teams")
 }
 
 model TeamMember {
@@ -82,9 +84,12 @@ model TeamMember {
 
 model Project {
   id          Int    @id @default(autoincrement())
+  projectPid  String @unique
   title       String
   teamId      Int
   team        Team   @relation(fields: [teamId], references: [id])
   createdById Int
   creator     User   @relation(fields: [createdById], references: [id])
+
+  @@map("projects")
 }

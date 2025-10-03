@@ -5,6 +5,6 @@ interface Props {
 }
 
 const LoadingIndicator = ({ className }: Props) => {
-  return <BeatLoader className={`${className}`} />;
+  return <BeatLoader className={`${className} mx-auto`} />;
 };
 export default LoadingIndicator;

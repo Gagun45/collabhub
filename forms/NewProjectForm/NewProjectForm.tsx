@@ -45,7 +45,7 @@ const NewProjectForm = ({ onCreate, isLoading }: Props) => {
               <FormItem>
                 <FormLabel>Project Title</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} autoFocus />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -1,5 +1,6 @@
 import {
   createNewProject,
+  getProjectByProjectPid,
   getTeamProjectsByTeamPid,
 } from "@/lib/actions/project.actions";
 import { UNEXPECTED_ERROR } from "@/lib/constants";
@@ -12,6 +13,20 @@ export const projectsApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ["teamProjects"],
   endpoints: (builder) => ({
+    getProjectByProjectPid: builder.query<
+      SuccessAndMessageType & { project: Project | null },
+      { projectPid: string }
+    >({
+      queryFn: async ({ projectPid }) => {
+        try {
+          const result = await getProjectByProjectPid(projectPid);
+          if (!result.success) return { error: result.message };
+          return { data: result };
+        } catch {
+          return { error: "Unexpected error" };
+        }
+      },
+    }),
     getTeamProjectsByTeamPid: builder.query<
       SuccessAndMessageType & { projects: Project[] },
       { teamPid: string }
@@ -45,5 +60,8 @@ export const projectsApi = createApi({
   }),
 });
 
-export const { useCreateNewProjectMutation, useGetTeamProjectsByTeamPidQuery } =
-  projectsApi;
+export const {
+  useCreateNewProjectMutation,
+  useGetTeamProjectsByTeamPidQuery,
+  useGetProjectByProjectPidQuery,
+} = projectsApi;

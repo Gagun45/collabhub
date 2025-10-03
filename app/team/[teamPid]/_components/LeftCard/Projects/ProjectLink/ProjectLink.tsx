@@ -3,19 +3,17 @@ import Link from "next/link";
 
 interface Props {
   project: Project;
-  activeProjectId: string | null;
+  activeProjectPid: string | null;
 }
 
-const ProjectLink = ({ project, activeProjectId }: Props) => {
-  const projectIdAsNumber = parseInt(activeProjectId ?? "a");
+const ProjectLink = ({ project, activeProjectPid }: Props) => {
+  const isActive = project.projectPid === activeProjectPid;
   return (
     <Link
       key={project.id}
-      href={`?projectId=${project.id}`}
+      href={`?projectPid=${project.projectPid}`}
       className={`${
-        project.id === projectIdAsNumber
-          ? "bg-slate-500 outline-2"
-          : "bg-slate-100 hover:bg-slate-300"
+        isActive ? "bg-slate-500 outline-2" : "bg-slate-100 hover:bg-slate-300"
       } p-2 rounded-md line-clamp-1`}
     >
       {project.title}

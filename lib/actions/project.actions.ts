@@ -5,6 +5,7 @@ import { SMTH_WENT_WRONG } from "../constants";
 import type { newProjectSchemaType, SuccessAndMessageType } from "../types";
 import { getAuthUser } from "./helper";
 import { prisma } from "../prisma";
+import { nanoid } from "nanoid";
 
 export const createNewProject = async (
   teamPid: string,
@@ -17,7 +18,12 @@ export const createNewProject = async (
     if (!team) return { success: false, message: "Team not found" };
     const { title } = values;
     await prisma.project.create({
-      data: { title, createdById: user.id, teamId: team.id },
+      data: {
+        title,
+        createdById: user.id,
+        teamId: team.id,
+        projectPid: nanoid(6),
+      },
     });
     return { success: true, message: "Project created" };
   } catch (error) {
@@ -40,5 +46,19 @@ export const getTeamProjectsByTeamPid = async (
   } catch (error) {
     console.log("Get team projects by team pid error: ", error);
     return { success: false, message: SMTH_WENT_WRONG, projects: [] };
+  }
+};
+
+export const getProjectByProjectPid = async (
+  projectPid: string
+): Promise<SuccessAndMessageType & { project: Project | null }> => {
+  try {
+    const project = await prisma.project.findUnique({ where: { projectPid } });
+    if (!project)
+      return { success: false, message: "Project not found", project: null };
+    return { success: true, message: "Project fetched", project };
+  } catch (error) {
+    console.log("Get project by project pid error: ", error);
+    return { success: false, message: SMTH_WENT_WRONG, project: null };
   }
 };
