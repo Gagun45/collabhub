@@ -1,20 +1,73 @@
 import {
+  createNewColumn,
+  reorderProjectColumns,
+  updateColumnTitle,
+} from "@/lib/actions/column.actions";
+import {
   createNewProject,
   getProjectByProjectPid,
   getTeamProjectsByTeamPid,
 } from "@/lib/actions/project.actions";
 import { UNEXPECTED_ERROR } from "@/lib/constants";
-import type { newProjectSchemaType, SuccessAndMessageType } from "@/lib/types";
+import type {
+  newProjectSchemaType,
+  ProjectType,
+  SuccessAndMessageType,
+} from "@/lib/types";
 import type { Project } from "@prisma/client";
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const projectsApi = createApi({
   reducerPath: "projectsApi",
   baseQuery: fakeBaseQuery(),
-  tagTypes: ["teamProjects"],
+  tagTypes: ["teamProjects", "project"],
   endpoints: (builder) => ({
+    updateColumnTitle: builder.mutation<
+      { success: boolean },
+      { columnId: number; newTitle: string }
+    >({
+      queryFn: async ({ columnId, newTitle }) => {
+        try {
+          const result = await updateColumnTitle(columnId, newTitle);
+          return { data: result };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: ["project"],
+    }),
+    reorderProjectColumns: builder.mutation<
+      { success: boolean },
+      { newColumns: number[] }
+    >({
+      queryFn: async ({ newColumns }) => {
+        try {
+          const result = await reorderProjectColumns(newColumns);
+          return { data: result };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: ["project"],
+    }),
+    createNewColumn: builder.mutation<
+      { success: boolean },
+      { projectPid: string; title: string }
+    >({
+      queryFn: async ({ projectPid, title }) => {
+        try {
+          const result = await createNewColumn(projectPid, title);
+          return { data: result };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: ["project"],
+    }),
     getProjectByProjectPid: builder.query<
-      SuccessAndMessageType & { project: Project | null },
+      SuccessAndMessageType & {
+        project: ProjectType | null;
+      },
       { projectPid: string }
     >({
       queryFn: async ({ projectPid }) => {
@@ -26,6 +79,7 @@ export const projectsApi = createApi({
           return { error: "Unexpected error" };
         }
       },
+      providesTags: ["project"],
     }),
     getTeamProjectsByTeamPid: builder.query<
       SuccessAndMessageType & { projects: Project[] },
@@ -64,4 +118,7 @@ export const {
   useCreateNewProjectMutation,
   useGetTeamProjectsByTeamPidQuery,
   useGetProjectByProjectPidQuery,
+  useCreateNewColumnMutation,
+  useReorderProjectColumnsMutation,
+  useUpdateColumnTitleMutation,
 } = projectsApi;

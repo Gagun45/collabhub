@@ -83,13 +83,31 @@ model TeamMember {
 }
 
 model Project {
-  id          Int    @id @default(autoincrement())
-  projectPid  String @unique
+  id          Int      @id @default(autoincrement())
+  projectPid  String   @unique
   title       String
   teamId      Int
-  team        Team   @relation(fields: [teamId], references: [id])
+  team        Team     @relation(fields: [teamId], references: [id])
   createdById Int
-  creator     User   @relation(fields: [createdById], references: [id])
+  creator     User     @relation(fields: [createdById], references: [id])
+  Column      Column[]
 
   @@map("projects")
+}
+
+model Column {
+  id        Int     @id @default(autoincrement())
+  title     String  @unique
+  index     Int     @default(autoincrement())
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+  Task      Task[]
+}
+
+model Task {
+  id       Int    @id @default(autoincrement())
+  title    String
+  index    Int    @default(autoincrement())
+  columnId Int
+  column   Column @relation(fields: [columnId], references: [id])
 }

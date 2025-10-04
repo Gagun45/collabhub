@@ -2,6 +2,8 @@ import LoadingIndicator from "@/components/General/LoadingIndicator";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetProjectByProjectPidQuery } from "@/redux/apis/projects.api";
 import { useSearchParams } from "next/navigation";
+import Board from "./Board/Board";
+import AddColumnBtn from "./AddColumnBtn/AddColumnBtn";
 
 const RightCard = () => {
   const projectPid = useSearchParams().get("projectPid");
@@ -38,6 +40,8 @@ const RightCard = () => {
     <Card className="w-full">
       <CardContent className="space-y-4">
         <h2>{project?.title}</h2>
+        <AddColumnBtn projectPid={project!.projectPid}/>
+        <Board project={project!}/>
       </CardContent>
     </Card>
   );

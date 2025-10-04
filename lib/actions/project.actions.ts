@@ -2,7 +2,11 @@
 
 import type { Project } from "@prisma/client";
 import { SMTH_WENT_WRONG } from "../constants";
-import type { newProjectSchemaType, SuccessAndMessageType } from "../types";
+import type {
+  newProjectSchemaType,
+  ProjectType,
+  SuccessAndMessageType,
+} from "../types";
 import { getAuthUser } from "./helper";
 import { prisma } from "../prisma";
 import { nanoid } from "nanoid";
@@ -51,9 +55,16 @@ export const getTeamProjectsByTeamPid = async (
 
 export const getProjectByProjectPid = async (
   projectPid: string
-): Promise<SuccessAndMessageType & { project: Project | null }> => {
+): Promise<
+  SuccessAndMessageType & {
+    project: ProjectType | null;
+  }
+> => {
   try {
-    const project = await prisma.project.findUnique({ where: { projectPid } });
+    const project = await prisma.project.findUnique({
+      where: { projectPid },
+      include: { Column: true },
+    });
     if (!project)
       return { success: false, message: "Project not found", project: null };
     return { success: true, message: "Project fetched", project };
