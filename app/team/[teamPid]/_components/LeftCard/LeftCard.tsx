@@ -14,7 +14,7 @@ const LeftCard = ({ teamPid }: Props) => {
   const { team } = teamData!;
 
   return (
-    <Card className="w-84 shrink-0">
+    <Card className="w-full max-w-128 mx-auto shrink-0 xl:w-80">
       <CardHeader>
         <CardTitle className="tracking-wider mx-auto flex flex-col">
           Team {team?.name}

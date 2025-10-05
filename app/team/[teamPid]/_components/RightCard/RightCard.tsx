@@ -37,7 +37,7 @@ const RightCard = () => {
 
   const project = data.project;
   return (
-    <Card className="w-full">
+    <Card className="w-full overflow-x-hidden">
       <CardContent className="space-y-4">
         <h2>{project?.title}</h2>
         <AddColumnBtn projectPid={project!.projectPid} />

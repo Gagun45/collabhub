@@ -15,7 +15,7 @@ const TeamPageClient = ({ teamPid }: Props) => {
   if (isLoading) return <LoadingIndicator />;
   if (!data?.success || !data.team) return <span>{SMTH_WENT_WRONG}</span>;
   return (
-    <div className="flex gap-4 w-full">
+    <div className="flex gap-4 w-full flex-col xl:flex-row">
       <LeftCard teamPid={teamPid}/>
       <RightCard />
     </div>

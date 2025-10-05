@@ -4,16 +4,22 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useUpdateColumnTitleMutation } from "@/redux/apis/projects.api";
+import {
+  useDeleteColumnMutation,
+  useUpdateColumnTitleMutation,
+} from "@/redux/apis/projects.api";
+import { toast } from "sonner";
 
 interface Props {
   column: Column;
+  projectPid: string;
 }
 
-const BoardColumn = ({ column }: Props) => {
+const BoardColumn = ({ column, projectPid }: Props) => {
   const [title, setTitle] = useState(column.title);
   const [editMode, setEditMode] = useState(false);
   const [updateColTitle, { isLoading }] = useUpdateColumnTitleMutation();
+  const [deleteColumn, { isLoading: isDeleting }] = useDeleteColumnMutation();
   const {
     setNodeRef,
     attributes,
@@ -43,7 +49,14 @@ const BoardColumn = ({ column }: Props) => {
       setEditMode(false);
       return;
     }
-    await updateColTitle({ columnId: column.id, newTitle: title });
+    const result = await updateColTitle({
+      columnId: column.id,
+      newTitle: title,
+    });
+    if (!result.data?.success) {
+      toast.error("Failed to update title");
+      setTitle(column.title);
+    }
     setEditMode(false);
   };
 
@@ -52,7 +65,7 @@ const BoardColumn = ({ column }: Props) => {
       <div
         ref={setNodeRef}
         style={style}
-        className="w-64 opacity-40 flex flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2"
+        className="w-80 opacity-40 flex flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2 shrink-0"
       >
         <div>
           <Button>Delete column</Button>
@@ -70,10 +83,15 @@ const BoardColumn = ({ column }: Props) => {
     <div
       ref={setNodeRef}
       style={style}
-      className="w-64 flex flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2"
+      className="flex w-3/4 xl:w-80 min-w-96 max-w-144 flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2 shrink-0"
     >
       <div>
-        <Button>Delete column</Button>
+        <Button
+          disabled={isDeleting}
+          onClick={() => deleteColumn({ columnId: column.id, projectPid })}
+        >
+          Delete column
+        </Button>
         <Button onClick={() => setEditMode(true)}>
           {isLoading ? "Editing..." : "Edit"}
         </Button>

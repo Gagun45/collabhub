@@ -3,10 +3,14 @@
 import { prisma } from "../prisma";
 
 export const createNewColumn = async (projectPid: string, title: string) => {
-  await prisma.column.create({
-    data: { title, project: { connect: { projectPid } } },
+  await prisma.$transaction(async (tx) => {
+    const count = await tx.column.count({
+      where: { project: { projectPid } },
+    });
+    await tx.column.create({
+      data: { title, project: { connect: { projectPid } }, index: count + 1 },
+    });
   });
-  return { success: true };
 };
 
 export const getProjectColumnsByProjectPid = async (projectPid: string) => {
@@ -30,10 +34,12 @@ export const reorderProjectColumns = async (newColumns: number[]) => {
 };
 
 export const updateColumnTitle = async (columnId: number, newTitle: string) => {
-  const updatedCol = await prisma.column.update({
+  await prisma.column.update({
     where: { id: columnId },
     data: { title: newTitle },
   });
-  if (!updatedCol) return { success: false };
-  return { success: true };
+};
+
+export const deleteColumn = async (columnId: number) => {
+  await prisma.column.delete({ where: { id: columnId } });
 };

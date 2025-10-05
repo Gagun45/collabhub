@@ -1,5 +1,6 @@
 import {
   createNewColumn,
+  deleteColumn,
   reorderProjectColumns,
   updateColumnTitle,
 } from "@/lib/actions/column.actions";
@@ -22,14 +23,49 @@ export const projectsApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ["teamProjects", "project"],
   endpoints: (builder) => ({
+    deleteColumn: builder.mutation<
+      { success: boolean },
+      { columnId: number; projectPid: string }
+    >({
+      queryFn: async ({ columnId }) => {
+        try {
+          await deleteColumn(columnId);
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { columnId, projectPid },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              draft.project!.Column = draft.project!.Column.filter(
+                (c) => c.id !== columnId
+              );
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+      invalidatesTags: ["project"],
+    }),
     updateColumnTitle: builder.mutation<
       { success: boolean },
       { columnId: number; newTitle: string }
     >({
       queryFn: async ({ columnId, newTitle }) => {
         try {
-          const result = await updateColumnTitle(columnId, newTitle);
-          return { data: result };
+          await updateColumnTitle(columnId, newTitle);
+          return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
         }
@@ -78,10 +114,35 @@ export const projectsApi = createApi({
     >({
       queryFn: async ({ projectPid, title }) => {
         try {
-          const result = await createNewColumn(projectPid, title);
-          return { data: result };
+          await createNewColumn(projectPid, title);
+          return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { title, projectPid },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              const existing = draft.project!.Column;
+              existing.push({
+                id: 0,
+                index: existing.length + 1,
+                projectId: 0,
+                title,
+              });
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
         }
       },
       invalidatesTags: ["project"],
@@ -143,4 +204,5 @@ export const {
   useCreateNewColumnMutation,
   useReorderProjectColumnsMutation,
   useUpdateColumnTitleMutation,
+  useDeleteColumnMutation,
 } = projectsApi;

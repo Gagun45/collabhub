@@ -11,7 +11,6 @@ interface Props {
 }
 
 const Board = ({ project }: Props) => {
-  console.log("board rerenderd");
   const [columns, setColumns] = useState<Column[]>(project.Column ?? []);
   useEffect(() => {
     setColumns(project.Column.slice().sort((a, b) => a.index - b.index));
@@ -35,13 +34,17 @@ const Board = ({ project }: Props) => {
   };
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex gap-4 overflow-x-auto">
         <SortableContext items={columns.map((c) => c.id)}>
           {columns
             .slice()
-            .sort((a, b) => a.index - b.index)
+            .sort((a, b) => b.index - a.index)
             .map((col) => (
-              <BoardColumn key={col.id} column={col} />
+              <BoardColumn
+                key={col.id}
+                column={col}
+                projectPid={project.projectPid}
+              />
             ))}
         </SortableContext>
       </div>
