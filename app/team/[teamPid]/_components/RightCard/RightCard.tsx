@@ -40,8 +40,8 @@ const RightCard = () => {
     <Card className="w-full">
       <CardContent className="space-y-4">
         <h2>{project?.title}</h2>
-        <AddColumnBtn projectPid={project!.projectPid}/>
-        <Board project={project!}/>
+        <AddColumnBtn projectPid={project!.projectPid} />
+        <Board project={project!} />
       </CardContent>
     </Card>
   );

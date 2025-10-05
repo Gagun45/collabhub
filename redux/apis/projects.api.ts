@@ -38,7 +38,7 @@ export const projectsApi = createApi({
     }),
     reorderProjectColumns: builder.mutation<
       { success: boolean },
-      { newColumns: number[] }
+      { projectPid: string; newColumns: number[] }
     >({
       queryFn: async ({ newColumns }) => {
         try {
@@ -46,6 +46,28 @@ export const projectsApi = createApi({
           return { data: result };
         } catch {
           return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { newColumns, projectPid },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              draft.project!.Column = draft.project!.Column.map((c) => {
+                const existing = newColumns.findIndex((e) => e === c.id);
+                return { ...c, index: existing + 1 };
+              });
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
         }
       },
       invalidatesTags: ["project"],

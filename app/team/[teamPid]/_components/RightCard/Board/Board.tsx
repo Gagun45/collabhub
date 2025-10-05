@@ -11,10 +11,12 @@ interface Props {
 }
 
 const Board = ({ project }: Props) => {
+  console.log("board rerenderd");
   const [columns, setColumns] = useState<Column[]>(project.Column ?? []);
   useEffect(() => {
-    setColumns(project.Column);
+    setColumns(project.Column.slice().sort((a, b) => a.index - b.index));
   }, [project.Column]);
+
   const [reorderCols] = useReorderProjectColumnsMutation();
 
   const handleDragEnd = async (e: DragEndEvent) => {
@@ -26,7 +28,10 @@ const Board = ({ project }: Props) => {
     const reordered = arrayMove(columns, oldIndex, newIndex);
 
     setColumns(reordered);
-    reorderCols({ newColumns: reordered.map((c) => c.id) });
+    await reorderCols({
+      projectPid: project.projectPid,
+      newColumns: reordered.map((c) => c.id),
+    });
   };
   return (
     <DndContext onDragEnd={handleDragEnd}>
