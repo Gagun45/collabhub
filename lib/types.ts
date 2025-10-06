@@ -15,7 +15,7 @@ export type ProfilePageDataType = SuccessAndMessageType & {
 };
 
 export type ProjectType = Prisma.ProjectGetPayload<{
-  include: { Column: { include: { Task: true } } };
+  include: { Column: { include: { Task: true }, } };
 }>;
 
 export type ColumnType = Prisma.ColumnGetPayload<{

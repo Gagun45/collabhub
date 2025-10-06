@@ -33,13 +33,16 @@ export const reorderProjectColumns = async (newColumns: string[]) => {
   return { success: true };
 };
 
-export const updateColumnTitle = async (columnId: number, newTitle: string) => {
+export const updateColumnTitle = async (
+  columnPid: string,
+  newTitle: string
+) => {
   await prisma.column.update({
-    where: { id: columnId },
+    where: { columnPid },
     data: { title: newTitle },
   });
 };
 
-export const deleteColumn = async (columnId: number) => {
-  await prisma.column.delete({ where: { id: columnId } });
+export const deleteColumn = async (columnPid: string) => {
+  await prisma.column.delete({ where: { columnPid } });
 };

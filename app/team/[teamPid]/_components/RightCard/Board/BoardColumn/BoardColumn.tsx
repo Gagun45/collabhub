@@ -1,29 +1,26 @@
+import { Button } from "@/components/ui/button";
+import type { Column, Task as TaskType } from "@prisma/client";
+import Task from "./Task/Task";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import {
-  useCreateNewTaskMutation,
-  useDeleteColumnMutation,
-  useUpdateColumnTitleMutation,
-} from "@/redux/apis/projects.api";
-import { toast } from "sonner";
-import type { ColumnType } from "@/lib/types";
-import Task from "./Task/Task";
+import { useState } from "react";
+import { useCreateNewTaskMutation } from "@/redux/apis/projects.api";
 
 interface Props {
-  column: ColumnType;
+  column: Column;
+  tasks: TaskType[];
   projectPid: string;
 }
 
-const BoardColumn = ({ column, projectPid }: Props) => {
-  const [title, setTitle] = useState(column.title);
-  const [editMode, setEditMode] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [updateColTitle, { isLoading }] = useUpdateColumnTitleMutation();
-  const [deleteColumn, { isLoading: isDeleting }] = useDeleteColumnMutation();
+const BoardColumn = ({ column, tasks }: Props) => {
+  const [newTask, setNewTask] = useState("");
   const [createTask] = useCreateNewTaskMutation();
+  const onAddNewTask = async () => {
+    if (!newTask) return;
+    await createTask({ columnPid: column.columnPid, taskTitle: newTask });
+    setNewTask("");
+  };
   const {
     setNodeRef,
     attributes,
@@ -33,157 +30,52 @@ const BoardColumn = ({ column, projectPid }: Props) => {
     isDragging,
   } = useSortable({
     id: column.columnPid,
-    disabled: editMode,
-    data: { type: "Column" },
+    data: { type: "Column", column },
   });
   const style = { transform: CSS.Transform.toString(transform), transition };
-
-  const resetTitle = () => {
-    setTitle(column.title);
-    setEditMode(false);
-  };
-  const onTaskCreate = async () => {
-    if (!newTaskTitle) return;
-    await createTask({ columnId: column.id, taskTitle: newTaskTitle });
-    setNewTaskTitle("");
-  };
-
-  const onUpdate = async () => {
-    if (!title) {
-      setTitle(column.title);
-      setEditMode(false);
-      return;
-    }
-    if (title === column.title) {
-      setEditMode(false);
-      return;
-    }
-    const result = await updateColTitle({
-      columnId: column.id,
-      newTitle: title,
-    });
-    if (!result.data?.success) {
-      toast.error("Failed to update title");
-      setTitle(column.title);
-    }
-    setEditMode(false);
-  };
 
   if (isDragging)
     return (
       <div
+        className="w-80 opacity-30 bg-blue-400 flex flex-col gap-2 shrink-0"
         ref={setNodeRef}
         style={style}
-        className="flex opacity-35 w-3/4 xl:w-80 min-w-96 max-w-144 flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2 shrink-0"
       >
-        <div className="space-x-1">
-          <Button
-            disabled={isDeleting}
-            onClick={() => deleteColumn({ columnId: column.id, projectPid })}
-          >
-            Delete column
-          </Button>
-          <Button onClick={() => setEditMode(true)}>
-            {isLoading ? "Editing..." : "Edit"}
-          </Button>
-
-          <Button {...attributes} {...listeners}>
-            Move
-          </Button>
-          <div>
-            <Input
-              placeholder="Task..."
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-            />
-            <Button onClick={onTaskCreate}>Add Task</Button>
-          </div>
+        <span {...attributes} {...listeners}>
+          {column!.title}
+        </span>
+        <div className="bg-slate-300 w-full min-h-24">
+          {tasks!.map((task) => (
+            <Task task={task} key={task.taskPid} />
+          ))}
         </div>
-        {editMode ? (
-          <Input
-            value={title}
-            autoFocus
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => {
-              switch (e.key) {
-                case "Escape":
-                  resetTitle();
-                  break;
-                case "Enter":
-                  onUpdate();
-                  break;
-              }
-            }}
-            onBlur={() => {
-              onUpdate();
-            }}
-          />
-        ) : (
-          <span className="border-b-2 border-t-2 ">
-            {title} - {column.index}
-          </span>
-        )}
+        <Button>Add task</Button>
       </div>
     );
-
   return (
     <div
+      className="w-80 bg-blue-400 flex flex-col gap-2 shrink-0"
       ref={setNodeRef}
       style={style}
-      className="flex w-3/4 xl:w-80 min-w-96 max-w-144 flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2 shrink-0"
     >
-      <div className="space-x-1">
-        <Button
-          disabled={isDeleting}
-          onClick={() => deleteColumn({ columnId: column.id, projectPid })}
-        >
-          Delete column
-        </Button>
-        <Button onClick={() => setEditMode(true)}>
-          {isLoading ? "Editing..." : "Edit"}
-        </Button>
-
-        <Button {...attributes} {...listeners}>
-          Move
-        </Button>
-        <div>
-          <Input
-            placeholder="Task..."
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-          />
-          <Button onClick={onTaskCreate}>Add Task</Button>
-        </div>
+      <span {...attributes} {...listeners}>
+        {column.title}
+      </span>
+      <div className="bg-slate-300 w-full min-h-24">
+        <SortableContext items={tasks.map((t) => t.taskPid)}>
+          {tasks.map((task) => (
+            <Task task={task} key={task.taskPid} />
+          ))}
+        </SortableContext>
       </div>
-      {editMode ? (
+      <div>
         <Input
-          value={title}
-          autoFocus
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => {
-            switch (e.key) {
-              case "Escape":
-                resetTitle();
-                break;
-              case "Enter":
-                onUpdate();
-                break;
-            }
-          }}
-          onBlur={() => {
-            onUpdate();
-          }}
+          placeholder="Task..."
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
         />
-      ) : (
-        <span className="border-b-2 border-t-2 ">
-          {title} - {column.index}
-        </span>
-      )}
-      {/* <SortableContext items={column.Task.map((t) => t.taskPid)}>
-        {column.Task.map((task) => (
-          <Task task={task} key={task.id} columnPid={column.columnPid} />
-        ))}
-      </SortableContext> */}
+        <Button onClick={onAddNewTask}>Add task</Button>
+      </div>
     </div>
   );
 };

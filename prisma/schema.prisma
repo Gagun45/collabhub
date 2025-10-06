@@ -96,20 +96,20 @@ model Project {
 }
 
 model Column {
-  id        Int     @id @default(autoincrement())
-  columnPid String  @unique @default(nanoid())
-  title     String  @unique
-  index     Int     @default(autoincrement())
-  projectId Int
-  project   Project @relation(fields: [projectId], references: [id])
-  Task      Task[]
+  id         Int     @id @default(autoincrement())
+  columnPid  String  @unique @default(nanoid())
+  title      String  @unique
+  index      Int     @default(autoincrement())
+  projectPid String
+  project    Project @relation(fields: [projectPid], references: [projectPid])
+  Task       Task[]
 }
 
 model Task {
-  id       Int    @id @default(autoincrement())
-  taskPid  String @unique @default(nanoid())
-  title    String
-  index    Int    @default(autoincrement())
-  columnId Int
-  column   Column @relation(fields: [columnId], references: [id])
+  id        Int    @id @default(autoincrement())
+  taskPid   String @unique @default(nanoid())
+  title     String
+  index     Int    @default(autoincrement())
+  columnPid String
+  column    Column @relation(fields: [columnPid], references: [columnPid])
 }

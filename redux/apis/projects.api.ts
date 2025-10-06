@@ -26,11 +26,11 @@ export const projectsApi = createApi({
   endpoints: (builder) => ({
     createNewTask: builder.mutation<
       { success: boolean },
-      { columnId: number; taskTitle: string }
+      { columnPid: string; taskTitle: string }
     >({
-      queryFn: async ({ columnId, taskTitle }) => {
+      queryFn: async ({ columnPid, taskTitle }) => {
         try {
-          await createNewTask(columnId, taskTitle);
+          await createNewTask(columnPid, taskTitle);
           return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
@@ -40,18 +40,18 @@ export const projectsApi = createApi({
     }),
     deleteColumn: builder.mutation<
       { success: boolean },
-      { columnId: number; projectPid: string }
+      { columnPid: string; projectPid: string }
     >({
-      queryFn: async ({ columnId }) => {
+      queryFn: async ({ columnPid }) => {
         try {
-          await deleteColumn(columnId);
+          await deleteColumn(columnPid);
           return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
         }
       },
       onQueryStarted: async (
-        { columnId, projectPid },
+        { columnPid, projectPid },
         { dispatch, queryFulfilled }
       ) => {
         const patch = dispatch(
@@ -60,7 +60,7 @@ export const projectsApi = createApi({
             { projectPid },
             (draft) => {
               draft.project!.Column = draft.project!.Column.filter(
-                (c) => c.id !== columnId
+                (c) => c.columnPid !== columnPid
               );
             }
           )
@@ -75,11 +75,11 @@ export const projectsApi = createApi({
     }),
     updateColumnTitle: builder.mutation<
       { success: boolean },
-      { columnId: number; newTitle: string }
+      { columnPid: string; newTitle: string }
     >({
-      queryFn: async ({ columnId, newTitle }) => {
+      queryFn: async ({ columnPid, newTitle }) => {
         try {
-          await updateColumnTitle(columnId, newTitle);
+          await updateColumnTitle(columnPid, newTitle);
           return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
@@ -149,7 +149,7 @@ export const projectsApi = createApi({
                 id: 0,
                 columnPid: "0",
                 index: existing.length + 1,
-                projectId: 0,
+                projectPid: "0",
                 title,
                 Task: [],
               });
