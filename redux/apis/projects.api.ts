@@ -9,6 +9,7 @@ import {
   getProjectByProjectPid,
   getTeamProjectsByTeamPid,
 } from "@/lib/actions/project.actions";
+import { createNewTask } from "@/lib/actions/task.actions";
 import { UNEXPECTED_ERROR } from "@/lib/constants";
 import type {
   newProjectSchemaType,
@@ -23,6 +24,20 @@ export const projectsApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ["teamProjects", "project"],
   endpoints: (builder) => ({
+    createNewTask: builder.mutation<
+      { success: boolean },
+      { columnId: number; taskTitle: string }
+    >({
+      queryFn: async ({ columnId, taskTitle }) => {
+        try {
+          await createNewTask(columnId, taskTitle);
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: ["project"],
+    }),
     deleteColumn: builder.mutation<
       { success: boolean },
       { columnId: number; projectPid: string }
@@ -74,7 +89,7 @@ export const projectsApi = createApi({
     }),
     reorderProjectColumns: builder.mutation<
       { success: boolean },
-      { projectPid: string; newColumns: number[] }
+      { projectPid: string; newColumns: string[] }
     >({
       queryFn: async ({ newColumns }) => {
         try {
@@ -94,7 +109,7 @@ export const projectsApi = createApi({
             { projectPid },
             (draft) => {
               draft.project!.Column = draft.project!.Column.map((c) => {
-                const existing = newColumns.findIndex((e) => e === c.id);
+                const existing = newColumns.findIndex((e) => e === c.columnPid);
                 return { ...c, index: existing + 1 };
               });
             }
@@ -132,9 +147,11 @@ export const projectsApi = createApi({
               const existing = draft.project!.Column;
               existing.push({
                 id: 0,
+                columnPid: "0",
                 index: existing.length + 1,
                 projectId: 0,
                 title,
+                Task: [],
               });
             }
           )
@@ -205,4 +222,5 @@ export const {
   useReorderProjectColumnsMutation,
   useUpdateColumnTitleMutation,
   useDeleteColumnMutation,
+  useCreateNewTaskMutation,
 } = projectsApi;

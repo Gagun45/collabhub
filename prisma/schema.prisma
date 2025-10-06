@@ -97,6 +97,7 @@ model Project {
 
 model Column {
   id        Int     @id @default(autoincrement())
+  columnPid String  @unique @default(nanoid())
   title     String  @unique
   index     Int     @default(autoincrement())
   projectId Int
@@ -106,6 +107,7 @@ model Column {
 
 model Task {
   id       Int    @id @default(autoincrement())
+  taskPid  String @unique @default(nanoid())
   title    String
   index    Int    @default(autoincrement())
   columnId Int

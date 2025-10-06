@@ -20,10 +20,10 @@ export const getProjectColumnsByProjectPid = async (projectPid: string) => {
   return { columns };
 };
 
-export const reorderProjectColumns = async (newColumns: number[]) => {
-  const updates = newColumns.map((id, index) =>
+export const reorderProjectColumns = async (newColumns: string[]) => {
+  const updates = newColumns.map((columnPid, index) =>
     prisma.column.update({
-      where: { id },
+      where: { columnPid },
       data: { index: index + 1 },
     })
   );

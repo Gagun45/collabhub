@@ -1,25 +1,29 @@
-import { useSortable } from "@dnd-kit/sortable";
-import type { Column } from "@prisma/client";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
+  useCreateNewTaskMutation,
   useDeleteColumnMutation,
   useUpdateColumnTitleMutation,
 } from "@/redux/apis/projects.api";
 import { toast } from "sonner";
+import type { ColumnType } from "@/lib/types";
+import Task from "./Task/Task";
 
 interface Props {
-  column: Column;
+  column: ColumnType;
   projectPid: string;
 }
 
 const BoardColumn = ({ column, projectPid }: Props) => {
   const [title, setTitle] = useState(column.title);
   const [editMode, setEditMode] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
   const [updateColTitle, { isLoading }] = useUpdateColumnTitleMutation();
   const [deleteColumn, { isLoading: isDeleting }] = useDeleteColumnMutation();
+  const [createTask] = useCreateNewTaskMutation();
   const {
     setNodeRef,
     attributes,
@@ -28,7 +32,7 @@ const BoardColumn = ({ column, projectPid }: Props) => {
     transition,
     isDragging,
   } = useSortable({
-    id: column.id,
+    id: column.columnPid,
     disabled: editMode,
     data: { type: "Column" },
   });
@@ -37,6 +41,11 @@ const BoardColumn = ({ column, projectPid }: Props) => {
   const resetTitle = () => {
     setTitle(column.title);
     setEditMode(false);
+  };
+  const onTaskCreate = async () => {
+    if (!newTaskTitle) return;
+    await createTask({ columnId: column.id, taskTitle: newTaskTitle });
+    setNewTaskTitle("");
   };
 
   const onUpdate = async () => {
@@ -65,17 +74,55 @@ const BoardColumn = ({ column, projectPid }: Props) => {
       <div
         ref={setNodeRef}
         style={style}
-        className="w-80 opacity-40 flex flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2 shrink-0"
+        className="flex opacity-35 w-3/4 xl:w-80 min-w-96 max-w-144 flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2 shrink-0"
       >
-        <div>
-          <Button>Delete column</Button>
-          <Button onClick={() => setEditMode((prev) => !prev)}>Edit</Button>
+        <div className="space-x-1">
+          <Button
+            disabled={isDeleting}
+            onClick={() => deleteColumn({ columnId: column.id, projectPid })}
+          >
+            Delete column
+          </Button>
+          <Button onClick={() => setEditMode(true)}>
+            {isLoading ? "Editing..." : "Edit"}
+          </Button>
+
           <Button {...attributes} {...listeners}>
             Move
           </Button>
+          <div>
+            <Input
+              placeholder="Task..."
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+            />
+            <Button onClick={onTaskCreate}>Add Task</Button>
+          </div>
         </div>
-
-        <span className="border-b-2 border-t-2 ">{title}</span>
+        {editMode ? (
+          <Input
+            value={title}
+            autoFocus
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => {
+              switch (e.key) {
+                case "Escape":
+                  resetTitle();
+                  break;
+                case "Enter":
+                  onUpdate();
+                  break;
+              }
+            }}
+            onBlur={() => {
+              onUpdate();
+            }}
+          />
+        ) : (
+          <span className="border-b-2 border-t-2 ">
+            {title} - {column.index}
+          </span>
+        )}
       </div>
     );
 
@@ -85,7 +132,7 @@ const BoardColumn = ({ column, projectPid }: Props) => {
       style={style}
       className="flex w-3/4 xl:w-80 min-w-96 max-w-144 flex-col min-h-36 rounded-md bg-blue-400 p-2 gap-2 shrink-0"
     >
-      <div>
+      <div className="space-x-1">
         <Button
           disabled={isDeleting}
           onClick={() => deleteColumn({ columnId: column.id, projectPid })}
@@ -99,6 +146,14 @@ const BoardColumn = ({ column, projectPid }: Props) => {
         <Button {...attributes} {...listeners}>
           Move
         </Button>
+        <div>
+          <Input
+            placeholder="Task..."
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+          />
+          <Button onClick={onTaskCreate}>Add Task</Button>
+        </div>
       </div>
       {editMode ? (
         <Input
@@ -124,6 +179,11 @@ const BoardColumn = ({ column, projectPid }: Props) => {
           {title} - {column.index}
         </span>
       )}
+      {/* <SortableContext items={column.Task.map((t) => t.taskPid)}>
+        {column.Task.map((task) => (
+          <Task task={task} key={task.id} columnPid={column.columnPid} />
+        ))}
+      </SortableContext> */}
     </div>
   );
 };

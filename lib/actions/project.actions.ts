@@ -63,7 +63,7 @@ export const getProjectByProjectPid = async (
   try {
     const project = await prisma.project.findUnique({
       where: { projectPid },
-      include: { Column: true },
+      include: { Column: { include: { Task: true } } },
     });
     if (!project)
       return { success: false, message: "Project not found", project: null };
