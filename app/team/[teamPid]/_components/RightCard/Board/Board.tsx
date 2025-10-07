@@ -3,13 +3,15 @@ import {
   DndContext,
   DragOverlay,
   type DragEndEvent,
-  type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { useEffect, useState } from "react";
 import BoardColumn from "./BoardColumn/BoardColumn";
-import { useReorderProjectColumnsMutation } from "@/redux/apis/projects.api";
+import {
+  useReorderProjectColumnsMutation,
+  useReorderSingleColumnMutation,
+} from "@/redux/apis/projects.api";
 import type { Column, Task as TaskType } from "@prisma/client";
 import Task from "./BoardColumn/Task/Task";
 import { createPortal } from "react-dom";
@@ -31,13 +33,13 @@ const Board = ({ project }: Props) => {
   }, [project.Column]);
 
   const [reorderCols] = useReorderProjectColumnsMutation();
+  const [reorderSingleCol] = useReorderSingleColumnMutation();
 
   const onDragEnd = (e: DragEndEvent) => {
     setActiveTask(null);
     setActiveColumn(null);
     const { active, over } = e;
     if (!over || active.id === over.id) return;
-
     const activeType = active.data.current?.type;
     const overType = over.data.current?.type;
 
@@ -55,67 +57,116 @@ const Board = ({ project }: Props) => {
     }
     if (activeType === "Task") {
       if (overType === "Task") {
-        setTasks((prev) => {
-          const newColumnPid = over.data.current?.task.columnPid;
-          const oldIndex = prev.findIndex((t) => t.taskPid === active.id);
-          const newIndex = prev.findIndex((t) => t.taskPid === over.id);
+        const newColumnPid = over.data.current?.task.columnPid;
 
-          return arrayMove(
-            prev.map((t) =>
+        // REORDER ONE COLUMN //
+        if (active.data.current?.task.columnPid === newColumnPid) {
+          const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
+          const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
+          const reordered = arrayMove(tasks, oldIndex, newIndex);
+          const columnCounters: Record<string, number> = {};
+
+          const updated = reordered.map((task) => {
+            const index = columnCounters[task.columnPid] ?? 0;
+            columnCounters[task.columnPid] = index + 1;
+            return { ...task, index: index + 1 };
+          });
+
+          setTasks(updated);
+          const affectedTasksPids = updated
+            .filter((t) => t.columnPid === newColumnPid)
+            .map((t) => t.taskPid);
+          reorderSingleCol({
+            columnPid: newColumnPid,
+            projectPid: project.projectPid,
+            newTasksOrderPids: affectedTasksPids,
+          });
+        } else {
+          // REORDER TWO DIFFERENT COLUMNS
+          const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
+          const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
+          const reordered = arrayMove(
+            tasks.map((t) =>
               t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
             ),
             oldIndex,
             newIndex
           );
-        });
+          const columnCounters: Record<string, number> = {};
+
+          const updated = reordered.map((task) => {
+            const index = columnCounters[task.columnPid] ?? 0;
+            columnCounters[task.columnPid] = index + 1;
+            return { ...task, index };
+          });
+          setTasks(updated);
+        }
       }
       if (overType === "Column") {
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.taskPid === active.id
-              ? { ...t, columnPid: over.data.current?.column.columnPid }
-              : t
-          )
-        );
-      }
-    }
-  };
-
-  const onDragOver = (e: DragOverEvent) => {
-    const { active, over } = e;
-
-    if (active.data.current?.type !== "Task") return;
-
-    if (!over) return;
-
-    if (over?.data.current?.type === "Column") {
-      const dragTask = active.data.current?.task;
-      const overColumn = over.data.current?.column;
-      if (overColumn.columnPid === active.data.current?.task.columnPid) return;
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.taskPid === dragTask.taskPid
-            ? { ...t, columnPid: overColumn.columnPid }
-            : t
-        )
-      );
-    }
-    if (over?.data.current?.type === "Task") {
-      setTasks((prev) => {
-        const newColumnPid = over.data.current?.task.columnPid;
-        const oldIndex = prev.findIndex((t) => t.taskPid === active.id);
-        const newIndex = prev.findIndex((t) => t.taskPid === over.id);
-
-        return arrayMove(
-          prev.map((t) =>
+        const newColumnPid = over.data.current?.column.columnPid;
+        const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
+        const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
+        const reordered = arrayMove(
+          tasks.map((t) =>
             t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
           ),
           oldIndex,
           newIndex
         );
-      });
+        const columnCounters: Record<string, number> = {};
+
+        const updated = reordered.map((task) => {
+          const index = columnCounters[task.columnPid] ?? 0;
+          columnCounters[task.columnPid] = index + 1;
+          return { ...task, index };
+        });
+        setTasks(updated);
+      }
     }
   };
+
+  // const onDragOver = (e: DragOverEvent) => {
+  //   const { active, over } = e;
+
+  //   if (active.data.current?.type !== "Task") return;
+
+  //   if (!over) return;
+
+  //   if (over?.data.current?.type === "Column") {
+  //     const dragTask = active.data.current?.task;
+  //     const overColumn = over.data.current?.column;
+  //     if (overColumn.columnPid === active.data.current?.task.columnPid) return;
+  //     setTasks((prev) =>
+  //       prev.map((t) =>
+  //         t.taskPid === dragTask.taskPid
+  //           ? { ...t, columnPid: overColumn.columnPid }
+  //           : t
+  //       )
+  //     );
+  //   }
+  //   if (over?.data.current?.type === "Task") {
+  //     const newColumnPid = over.data.current?.task.columnPid;
+  //     const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
+  //     const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
+  //     const reordered = arrayMove(
+  //       tasks.map((t) =>
+  //         t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
+  //       ),
+  //       oldIndex,
+  //       newIndex
+  //     );
+
+  //     const columnCounters: Record<string, number> = {};
+
+  //     const updated = reordered.map((task) => {
+  //       const index = columnCounters[task.columnPid] ?? 0;
+  //       columnCounters[task.columnPid] = index + 1;
+  //       return { ...task, index };
+  //     });
+
+  //     setTasks(updated);
+  //   }
+  // };
 
   const onDragStart = (e: DragStartEvent) => {
     const { active } = e;
@@ -133,7 +184,7 @@ const Board = ({ project }: Props) => {
     <DndContext
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onDragOver={onDragOver}
+      // onDragOver={onDragOver}
     >
       <div className="flex gap-4 overflow-x-auto">
         <SortableContext items={columns.map((c) => c.columnPid)}>
@@ -144,7 +195,9 @@ const Board = ({ project }: Props) => {
               <BoardColumn
                 key={col.columnPid}
                 column={col}
-                tasks={tasks.filter((t) => t.columnPid === col.columnPid)}
+                tasks={tasks
+                  .filter((t) => t.columnPid === col.columnPid)
+                  .sort((a, b) => b.index - a.index)}
                 projectPid={project.projectPid}
               />
             ))}
@@ -155,9 +208,9 @@ const Board = ({ project }: Props) => {
               <BoardColumn
                 column={activeColumn}
                 projectPid={project.projectPid}
-                tasks={tasks.filter(
-                  (t) => t.columnPid === activeColumn.columnPid
-                )}
+                tasks={tasks
+                  .filter((t) => t.columnPid === activeColumn.columnPid)
+                  .sort((a, b) => b.index - a.index)}
               />
             )}
             {activeTask && <Task task={activeTask} />}

@@ -37,8 +37,7 @@ const Task = ({ task }: Props) => {
     );
   return (
     <div className="border-1" ref={setNodeRef} style={style}>
-      {task.title}
-
+      {task.title} - {task.index}
       <span
         {...listeners}
         {...attributes}

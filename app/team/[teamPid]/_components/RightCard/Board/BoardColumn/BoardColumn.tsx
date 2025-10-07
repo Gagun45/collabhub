@@ -49,7 +49,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
           {column!.title}
         </span>
         <div className="bg-slate-300 w-full min-h-24">
-          {tasks!.map((task) => (
+          {tasks.map((task) => (
             <Task task={task} key={task.taskPid} />
           ))}
         </div>
@@ -65,7 +65,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
       <span {...attributes} {...listeners}>
         {column.title}
       </span>
-      <div className="bg-slate-300 w-full min-h-24">
+      <div className="bg-slate-300 py-8 w-full min-h-24">
         <SortableContext items={tasks.map((t) => t.taskPid)}>
           {tasks.map((task) => (
             <Task task={task} key={task.taskPid} />

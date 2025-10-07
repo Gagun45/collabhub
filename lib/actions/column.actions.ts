@@ -29,8 +29,6 @@ export const reorderProjectColumns = async (newColumns: string[]) => {
   );
 
   await prisma.$transaction(updates);
-
-  return { success: true };
 };
 
 export const updateColumnTitle = async (
@@ -45,4 +43,11 @@ export const updateColumnTitle = async (
 
 export const deleteColumn = async (columnPid: string) => {
   await prisma.column.delete({ where: { columnPid } });
+};
+
+export const reorderSingleColumn = async (newTasksOrderPids: string[]) => {
+  const updates = newTasksOrderPids.map((taskPid, index) =>
+    prisma.task.update({ where: { taskPid }, data: { index: index + 1 } })
+  );
+  await prisma.$transaction(updates);
 };
