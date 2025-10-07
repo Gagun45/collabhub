@@ -3,6 +3,7 @@ import {
   deleteColumn,
   reorderProjectColumns,
   reorderSingleColumn,
+  reorderTwoColumns,
   updateColumnTitle,
 } from "@/lib/actions/column.actions";
 import {
@@ -124,6 +125,36 @@ export const projectsApi = createApi({
       },
       invalidatesTags: ["project"],
     }),
+    reorderTwoColumns: builder.mutation<
+      { success: boolean },
+      {
+        projectPid: string;
+        fromColumnPid: string;
+        fromColumnTaskPids: string[];
+        toColumnPid: string;
+        toColumnTaskPids: string[];
+      }
+    >({
+      queryFn: async ({
+        fromColumnTaskPids,
+        toColumnTaskPids,
+        fromColumnPid,
+        toColumnPid,
+      }) => {
+        try {
+          await reorderTwoColumns(
+            fromColumnPid,
+            fromColumnTaskPids,
+            toColumnPid,
+            toColumnTaskPids
+          );
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: ["project"],
+    }),
     reorderSingleColumn: builder.mutation<
       { success: boolean },
       { projectPid: string; newTasksOrderPids: string[]; columnPid: string }
@@ -136,36 +167,7 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
-      onQueryStarted: async (
-        { newTasksOrderPids, projectPid, columnPid },
-        { dispatch, queryFulfilled }
-      ) => {
-        const patch = dispatch(
-          projectsApi.util.updateQueryData(
-            "getProjectByProjectPid",
-            { projectPid },
-            (draft) => {
-              draft.project!.Column = draft.project!.Column.map((c) => {
-                if (c.columnPid !== columnPid) return c;
-                return {
-                  ...c,
-                  Task: c.Task.map((t) => {
-                    const newIndex = newTasksOrderPids.findIndex(
-                      (tpid) => tpid === t.taskPid
-                    );
-                    return { ...t, index: newIndex + 1 };
-                  }),
-                };
-              });
-            }
-          )
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patch.undo();
-        }
-      },
+     
       invalidatesTags: ["project"],
     }),
     reorderProjectColumns: builder.mutation<
@@ -305,4 +307,5 @@ export const {
   useDeleteColumnMutation,
   useCreateNewTaskMutation,
   useReorderSingleColumnMutation,
+  useReorderTwoColumnsMutation,
 } = projectsApi;

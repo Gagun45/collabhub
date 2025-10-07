@@ -51,3 +51,29 @@ export const reorderSingleColumn = async (newTasksOrderPids: string[]) => {
   );
   await prisma.$transaction(updates);
 };
+
+export const reorderTwoColumns = async (
+  fromColumnPid: string,
+  fromColumnTaskPids: string[],
+  toColumnPid: string,
+  toColumnTaskPids: string[]
+) => {
+  await prisma.$transaction(async (tx) => {
+    await Promise.all(
+      fromColumnTaskPids.map((taskPid, index) =>
+        tx.task.update({
+          where: { taskPid },
+          data: { index: index + 1, columnPid: fromColumnPid },
+        })
+      )
+    );
+    await Promise.all(
+      toColumnTaskPids.map((taskPid, index) =>
+        tx.task.update({
+          where: { taskPid },
+          data: { index: index + 1, columnPid: toColumnPid },
+        })
+      )
+    );
+  });
+};

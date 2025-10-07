@@ -11,6 +11,7 @@ import BoardColumn from "./BoardColumn/BoardColumn";
 import {
   useReorderProjectColumnsMutation,
   useReorderSingleColumnMutation,
+  useReorderTwoColumnsMutation,
 } from "@/redux/apis/projects.api";
 import type { Column, Task as TaskType } from "@prisma/client";
 import Task from "./BoardColumn/Task/Task";
@@ -34,6 +35,7 @@ const Board = ({ project }: Props) => {
 
   const [reorderCols] = useReorderProjectColumnsMutation();
   const [reorderSingleCol] = useReorderSingleColumnMutation();
+  const [reorderTwoCols] = useReorderTwoColumnsMutation();
 
   const onDragEnd = (e: DragEndEvent) => {
     setActiveTask(null);
@@ -57,10 +59,10 @@ const Board = ({ project }: Props) => {
     }
     if (activeType === "Task") {
       if (overType === "Task") {
-        const newColumnPid = over.data.current?.task.columnPid;
+        const toColumnPid = over.data.current?.task.columnPid;
 
         // REORDER ONE COLUMN //
-        if (active.data.current?.task.columnPid === newColumnPid) {
+        if (active.data.current?.task.columnPid === toColumnPid) {
           const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
           const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
           const reordered = arrayMove(tasks, oldIndex, newIndex);
@@ -74,20 +76,21 @@ const Board = ({ project }: Props) => {
 
           setTasks(updated);
           const affectedTasksPids = updated
-            .filter((t) => t.columnPid === newColumnPid)
+            .filter((t) => t.columnPid === toColumnPid)
             .map((t) => t.taskPid);
           reorderSingleCol({
-            columnPid: newColumnPid,
+            columnPid: toColumnPid,
             projectPid: project.projectPid,
             newTasksOrderPids: affectedTasksPids,
           });
         } else {
           // REORDER TWO DIFFERENT COLUMNS
+          const fromColumnPid = active.data.current?.task.columnPid;
           const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
           const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
           const reordered = arrayMove(
             tasks.map((t) =>
-              t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
+              t.taskPid === active.id ? { ...t, columnPid: toColumnPid } : t
             ),
             oldIndex,
             newIndex
@@ -97,18 +100,32 @@ const Board = ({ project }: Props) => {
           const updated = reordered.map((task) => {
             const index = columnCounters[task.columnPid] ?? 0;
             columnCounters[task.columnPid] = index + 1;
-            return { ...task, index };
+            return { ...task, index: index + 1 };
           });
           setTasks(updated);
+          const fromColumnTaskPids = updated
+            .filter((t) => t.columnPid === fromColumnPid)
+            .map((t) => t.taskPid);
+          const toColumnTaskPids = updated
+            .filter((t) => t.columnPid === toColumnPid)
+            .map((t) => t.taskPid);
+          reorderTwoCols({
+            fromColumnPid,
+            toColumnPid,
+            fromColumnTaskPids,
+            toColumnTaskPids,
+            projectPid: project.projectPid,
+          });
         }
       }
       if (overType === "Column") {
-        const newColumnPid = over.data.current?.column.columnPid;
+        const fromColumnPid = active.data.current?.task.columnPid;
+        const toColumnPid = over.data.current?.column.columnPid;
         const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
         const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
         const reordered = arrayMove(
           tasks.map((t) =>
-            t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
+            t.taskPid === active.id ? { ...t, columnPid: toColumnPid } : t
           ),
           oldIndex,
           newIndex
@@ -118,9 +135,22 @@ const Board = ({ project }: Props) => {
         const updated = reordered.map((task) => {
           const index = columnCounters[task.columnPid] ?? 0;
           columnCounters[task.columnPid] = index + 1;
-          return { ...task, index };
+          return { ...task, index: index + 1 };
         });
         setTasks(updated);
+                  const fromColumnTaskPids = updated
+            .filter((t) => t.columnPid === fromColumnPid)
+            .map((t) => t.taskPid);
+          const toColumnTaskPids = updated
+            .filter((t) => t.columnPid === toColumnPid)
+            .map((t) => t.taskPid);
+          reorderTwoCols({
+            fromColumnPid,
+            toColumnPid,
+            fromColumnTaskPids,
+            toColumnTaskPids,
+            projectPid: project.projectPid,
+          });
       }
     }
   };
