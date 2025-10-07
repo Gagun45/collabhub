@@ -26,7 +26,7 @@ export const projectsApi = createApi({
   endpoints: (builder) => ({
     createNewTask: builder.mutation<
       { success: boolean },
-      { columnPid: string; taskTitle: string }
+      { columnPid: string; taskTitle: string; projectPid: string }
     >({
       queryFn: async ({ columnPid, taskTitle }) => {
         try {
@@ -34,6 +34,42 @@ export const projectsApi = createApi({
           return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { columnPid, taskTitle, projectPid },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              draft.project!.Column = draft.project!.Column.map((col) => {
+                if (col.columnPid === columnPid) {
+                  return {
+                    ...col,
+                    Task: [
+                      ...col.Task,
+                      {
+                        columnPid,
+                        id: 0,
+                        index: 0,
+                        taskPid: "0",
+                        title: taskTitle,
+                      },
+                    ],
+                  };
+                }
+                return col;
+              });
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
         }
       },
       invalidatesTags: ["project"],

@@ -25,10 +25,10 @@ const Board = ({ project }: Props) => {
   );
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [activeTask, setActiveTask] = useState<TaskType | null>(null);
-  // useEffect(() => {
-  //   setColumns(project.Column.slice().sort((a, b) => a.index - b.index));
-  //   setTasks(project.Column.flatMap((c) => c.Task));
-  // }, [project.Column]);
+  useEffect(() => {
+    setColumns(project.Column.slice().sort((a, b) => a.index - b.index));
+    setTasks(project.Column.flatMap((c) => c.Task));
+  }, [project.Column]);
 
   const [reorderCols] = useReorderProjectColumnsMutation();
 
@@ -38,11 +38,83 @@ const Board = ({ project }: Props) => {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
 
-    setColumns((prev) => {
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+
+    if (activeType === "Column" && overType === "Column") {
       const oldIndex = columns.findIndex((c) => c.columnPid === active.id);
       const newIndex = columns.findIndex((c) => c.columnPid === over.id);
-      return arrayMove(prev, oldIndex, newIndex);
-    });
+      const reordered = arrayMove(columns, oldIndex, newIndex).map(
+        (c, index) => ({ ...c, index: index + 1 })
+      );
+      setColumns(reordered);
+      reorderCols({
+        newColumns: reordered.map((c) => c.columnPid),
+        projectPid: project.projectPid,
+      });
+    }
+    if (activeType === "Task") {
+      if (overType === "Task") {
+        setTasks((prev) => {
+          const newColumnPid = over.data.current?.task.columnPid;
+          const oldIndex = prev.findIndex((t) => t.taskPid === active.id);
+          const newIndex = prev.findIndex((t) => t.taskPid === over.id);
+
+          return arrayMove(
+            prev.map((t) =>
+              t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
+            ),
+            oldIndex,
+            newIndex
+          );
+        });
+      }
+      if (overType === "Column") {
+        setTasks((prev) =>
+          prev.map((t) =>
+            t.taskPid === active.id
+              ? { ...t, columnPid: over.data.current?.column.columnPid }
+              : t
+          )
+        );
+      }
+    }
+  };
+
+  const onDragOver = (e: DragOverEvent) => {
+    const { active, over } = e;
+
+    if (active.data.current?.type !== "Task") return;
+
+    if (!over) return;
+
+    if (over?.data.current?.type === "Column") {
+      const dragTask = active.data.current?.task;
+      const overColumn = over.data.current?.column;
+      if (overColumn.columnPid === active.data.current?.task.columnPid) return;
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.taskPid === dragTask.taskPid
+            ? { ...t, columnPid: overColumn.columnPid }
+            : t
+        )
+      );
+    }
+    if (over?.data.current?.type === "Task") {
+      setTasks((prev) => {
+        const newColumnPid = over.data.current?.task.columnPid;
+        const oldIndex = prev.findIndex((t) => t.taskPid === active.id);
+        const newIndex = prev.findIndex((t) => t.taskPid === over.id);
+
+        return arrayMove(
+          prev.map((t) =>
+            t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
+          ),
+          oldIndex,
+          newIndex
+        );
+      });
+    }
   };
 
   const onDragStart = (e: DragStartEvent) => {
@@ -58,12 +130,16 @@ const Board = ({ project }: Props) => {
   };
 
   return (
-    <DndContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+    <DndContext
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+    >
       <div className="flex gap-4 overflow-x-auto">
         <SortableContext items={columns.map((c) => c.columnPid)}>
           {columns
             .slice()
-            // .sort((a, b) => b.index - a.index)
+            .sort((a, b) => b.index - a.index)
             .map((col) => (
               <BoardColumn
                 key={col.columnPid}

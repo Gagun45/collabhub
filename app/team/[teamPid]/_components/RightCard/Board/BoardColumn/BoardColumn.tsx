@@ -18,7 +18,11 @@ const BoardColumn = ({ column, tasks }: Props) => {
   const [createTask] = useCreateNewTaskMutation();
   const onAddNewTask = async () => {
     if (!newTask) return;
-    await createTask({ columnPid: column.columnPid, taskTitle: newTask });
+    await createTask({
+      columnPid: column.columnPid,
+      taskTitle: newTask,
+      projectPid: column.projectPid,
+    });
     setNewTask("");
   };
   const {
