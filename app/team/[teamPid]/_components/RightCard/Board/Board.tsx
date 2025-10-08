@@ -2,6 +2,11 @@ import type { ProjectType } from "@/lib/types";
 import {
   DndContext,
   DragOverlay,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
@@ -36,6 +41,11 @@ const Board = ({ project }: Props) => {
   const [reorderCols] = useReorderProjectColumnsMutation();
   const [reorderSingleCol] = useReorderSingleColumnMutation();
   const [reorderTwoCols] = useReorderTwoColumnsMutation();
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(KeyboardSensor),
+    useSensor(TouchSensor, { activationConstraint: { distance: 5 } })
+  );
 
   const onDragEnd = (e: DragEndEvent) => {
     setActiveTask(null);
@@ -138,65 +148,22 @@ const Board = ({ project }: Props) => {
           return { ...task, index: index + 1 };
         });
         setTasks(updated);
-                  const fromColumnTaskPids = updated
-            .filter((t) => t.columnPid === fromColumnPid)
-            .map((t) => t.taskPid);
-          const toColumnTaskPids = updated
-            .filter((t) => t.columnPid === toColumnPid)
-            .map((t) => t.taskPid);
-          reorderTwoCols({
-            fromColumnPid,
-            toColumnPid,
-            fromColumnTaskPids,
-            toColumnTaskPids,
-            projectPid: project.projectPid,
-          });
+        const fromColumnTaskPids = updated
+          .filter((t) => t.columnPid === fromColumnPid)
+          .map((t) => t.taskPid);
+        const toColumnTaskPids = updated
+          .filter((t) => t.columnPid === toColumnPid)
+          .map((t) => t.taskPid);
+        reorderTwoCols({
+          fromColumnPid,
+          toColumnPid,
+          fromColumnTaskPids,
+          toColumnTaskPids,
+          projectPid: project.projectPid,
+        });
       }
     }
   };
-
-  // const onDragOver = (e: DragOverEvent) => {
-  //   const { active, over } = e;
-
-  //   if (active.data.current?.type !== "Task") return;
-
-  //   if (!over) return;
-
-  //   if (over?.data.current?.type === "Column") {
-  //     const dragTask = active.data.current?.task;
-  //     const overColumn = over.data.current?.column;
-  //     if (overColumn.columnPid === active.data.current?.task.columnPid) return;
-  //     setTasks((prev) =>
-  //       prev.map((t) =>
-  //         t.taskPid === dragTask.taskPid
-  //           ? { ...t, columnPid: overColumn.columnPid }
-  //           : t
-  //       )
-  //     );
-  //   }
-  //   if (over?.data.current?.type === "Task") {
-  //     const newColumnPid = over.data.current?.task.columnPid;
-  //     const oldIndex = tasks.findIndex((t) => t.taskPid === active.id);
-  //     const newIndex = tasks.findIndex((t) => t.taskPid === over.id);
-  //     const reordered = arrayMove(
-  //       tasks.map((t) =>
-  //         t.taskPid === active.id ? { ...t, columnPid: newColumnPid } : t
-  //       ),
-  //       oldIndex,
-  //       newIndex
-  //     );
-
-  //     const columnCounters: Record<string, number> = {};
-
-  //     const updated = reordered.map((task) => {
-  //       const index = columnCounters[task.columnPid] ?? 0;
-  //       columnCounters[task.columnPid] = index + 1;
-  //       return { ...task, index };
-  //     });
-
-  //     setTasks(updated);
-  //   }
-  // };
 
   const onDragStart = (e: DragStartEvent) => {
     const { active } = e;
@@ -214,7 +181,7 @@ const Board = ({ project }: Props) => {
     <DndContext
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      // onDragOver={onDragOver}
+      sensors={sensors}
     >
       <div className="flex gap-4 overflow-x-auto">
         <SortableContext items={columns.map((c) => c.columnPid)}>
@@ -243,7 +210,9 @@ const Board = ({ project }: Props) => {
                   .sort((a, b) => b.index - a.index)}
               />
             )}
-            {activeTask && <Task task={activeTask} />}
+            {activeTask && (
+              <Task task={activeTask} projectPid={project.projectPid} />
+            )}
           </DragOverlay>,
           document.body
         )}

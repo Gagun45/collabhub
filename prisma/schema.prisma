@@ -87,7 +87,7 @@ model Project {
   projectPid  String   @unique
   title       String
   teamId      Int
-  team        Team     @relation(fields: [teamId], references: [id])
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   createdById Int
   creator     User     @relation(fields: [createdById], references: [id])
   Column      Column[]
@@ -101,7 +101,7 @@ model Column {
   title      String  @unique
   index      Int     @default(autoincrement())
   projectPid String
-  project    Project @relation(fields: [projectPid], references: [projectPid])
+  project    Project @relation(fields: [projectPid], references: [projectPid], onDelete: Cascade)
   Task       Task[]
 }
 
@@ -111,5 +111,5 @@ model Task {
   title     String
   index     Int    @default(autoincrement())
   columnPid String
-  column    Column @relation(fields: [columnPid], references: [columnPid])
+  column    Column @relation(fields: [columnPid], references: [columnPid], onDelete: Cascade)
 }

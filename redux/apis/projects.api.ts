@@ -11,7 +11,7 @@ import {
   getProjectByProjectPid,
   getTeamProjectsByTeamPid,
 } from "@/lib/actions/project.actions";
-import { createNewTask } from "@/lib/actions/task.actions";
+import { createNewTask, deleteTask } from "@/lib/actions/task.actions";
 import { UNEXPECTED_ERROR } from "@/lib/constants";
 import type {
   newProjectSchemaType,
@@ -111,6 +111,48 @@ export const projectsApi = createApi({
       },
       invalidatesTags: ["project"],
     }),
+    deleteTask: builder.mutation<
+      { success: boolean },
+      { taskPid: string; columnPid: string; projectPid: string }
+    >({
+      queryFn: async ({ taskPid }) => {
+        try {
+          await deleteTask(taskPid);
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { taskPid, projectPid, columnPid },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              draft.project!.Column = draft.project!.Column.map((c) =>
+                c.columnPid === columnPid
+                  ? {
+                      ...c,
+                      Task: c.Task.filter((t) => t.taskPid !== taskPid).map(
+                        (t, index) => ({ ...t, index })
+                      ),
+                    }
+                  : c
+              );
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+      invalidatesTags: ["project"],
+    }),
     updateColumnTitle: builder.mutation<
       { success: boolean },
       { columnPid: string; newTitle: string }
@@ -167,7 +209,7 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
-     
+
       invalidatesTags: ["project"],
     }),
     reorderProjectColumns: builder.mutation<
@@ -180,28 +222,6 @@ export const projectsApi = createApi({
           return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
-        }
-      },
-      onQueryStarted: async (
-        { newColumns, projectPid },
-        { dispatch, queryFulfilled }
-      ) => {
-        const patch = dispatch(
-          projectsApi.util.updateQueryData(
-            "getProjectByProjectPid",
-            { projectPid },
-            (draft) => {
-              draft.project!.Column = draft.project!.Column.map((c) => {
-                const existing = newColumns.findIndex((e) => e === c.columnPid);
-                return { ...c, index: existing + 1 };
-              });
-            }
-          )
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patch.undo();
         }
       },
       invalidatesTags: ["project"],
@@ -308,4 +328,5 @@ export const {
   useCreateNewTaskMutation,
   useReorderSingleColumnMutation,
   useReorderTwoColumnsMutation,
+  useDeleteTaskMutation,
 } = projectsApi;

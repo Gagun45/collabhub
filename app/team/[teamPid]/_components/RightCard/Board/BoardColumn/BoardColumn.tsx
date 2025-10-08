@@ -5,7 +5,10 @@ import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { useCreateNewTaskMutation } from "@/redux/apis/projects.api";
+import {
+  useCreateNewTaskMutation,
+  useDeleteColumnMutation,
+} from "@/redux/apis/projects.api";
 
 interface Props {
   column: Column;
@@ -16,9 +19,10 @@ interface Props {
 const BoardColumn = ({ column, tasks }: Props) => {
   const [newTask, setNewTask] = useState("");
   const [createTask] = useCreateNewTaskMutation();
+  const [deleteColumn] = useDeleteColumnMutation();
   const onAddNewTask = async () => {
     if (!newTask) return;
-    await createTask({
+    createTask({
       columnPid: column.columnPid,
       taskTitle: newTask,
       projectPid: column.projectPid,
@@ -41,38 +45,80 @@ const BoardColumn = ({ column, tasks }: Props) => {
   if (isDragging)
     return (
       <div
-        className="w-80 opacity-30 bg-blue-400 flex flex-col gap-2 shrink-0"
+        className="w-80 opacity-35 bg-blue-400 flex flex-col gap-2 shrink-0"
         ref={setNodeRef}
         style={style}
       >
-        <span {...attributes} {...listeners}>
-          {column!.title}
+        <span {...attributes} {...listeners} style={{ touchAction: "none" }}>
+          {column.title}
         </span>
-        <div className="bg-slate-300 w-full min-h-24">
-          {tasks.map((task) => (
-            <Task task={task} key={task.taskPid} />
-          ))}
+        <Button
+          onClick={() =>
+            deleteColumn({
+              columnPid: column.columnPid,
+              projectPid: column.projectPid,
+            })
+          }
+        >
+          Delete column
+        </Button>
+        <div className="bg-slate-300 py-8 w-full min-h-24">
+          <SortableContext items={tasks.map((t) => t.taskPid)}>
+            {tasks.map((task) => (
+              <Task
+                task={task}
+                key={task.taskPid}
+                projectPid={column.projectPid}
+              />
+            ))}
+          </SortableContext>
         </div>
-        <Button>Add task</Button>
+        <div>
+          <Input
+            placeholder="Task..."
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+          />
+          <Button onClick={onAddNewTask}>Add task</Button>
+        </div>
       </div>
     );
   return (
     <div
-      className="w-80 bg-blue-400 flex flex-col gap-2 shrink-0"
+      className="w-80 rounded-md flex h-fit flex-col gap-2 pb-2 shrink-0 border-2 overflow-hidden border-blue-400"
       ref={setNodeRef}
       style={style}
     >
-      <span {...attributes} {...listeners}>
+      <span
+        {...attributes}
+        {...listeners}
+        style={{ touchAction: "none" }}
+        className="bg-blue-400 p-1 text-center"
+      >
         {column.title}
       </span>
-      <div className="bg-slate-300 py-8 w-full min-h-24">
+      <Button
+        onClick={() =>
+          deleteColumn({
+            columnPid: column.columnPid,
+            projectPid: column.projectPid,
+          })
+        }
+      >
+        Delete column
+      </Button>
+      <div className="w-full space-y-4 px-4">
         <SortableContext items={tasks.map((t) => t.taskPid)}>
           {tasks.map((task) => (
-            <Task task={task} key={task.taskPid} />
+            <Task
+              task={task}
+              key={task.taskPid}
+              projectPid={column.projectPid}
+            />
           ))}
         </SortableContext>
       </div>
-      <div>
+      <div className="flex items-center gap-2 px-4">
         <Input
           placeholder="Task..."
           value={newTask}

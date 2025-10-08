@@ -24,7 +24,7 @@ const AddColumnBtn = ({ projectPid }: Props) => {
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 max-w-md">
       <Input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
       <Button disabled={!newTitle || isLoading} onClick={onCreate}>
         {isLoading ? "Loading..." : "Add column"}
