@@ -11,7 +11,11 @@ import {
   getProjectByProjectPid,
   getTeamProjectsByTeamPid,
 } from "@/lib/actions/project.actions";
-import { createNewTask, deleteTask } from "@/lib/actions/task.actions";
+import {
+  createNewTask,
+  deleteTask,
+  editTaskTitle,
+} from "@/lib/actions/task.actions";
 import { UNEXPECTED_ERROR } from "@/lib/constants";
 import type {
   newProjectSchemaType,
@@ -151,6 +155,56 @@ export const projectsApi = createApi({
           patch.undo();
         }
       },
+      invalidatesTags: ["project"],
+    }),
+    editTaskTitle: builder.mutation<
+      { success: boolean },
+      {
+        projectPid: string;
+        taskPid: string;
+        newTaskTitle: string;
+        columnPid: string;
+      }
+    >({
+      queryFn: async ({ taskPid, newTaskTitle }) => {
+        try {
+          await editTaskTitle(taskPid, newTaskTitle);
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { taskPid, projectPid, columnPid, newTaskTitle },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              draft.project!.Column = draft.project!.Column.map((c) =>
+                c.columnPid === columnPid
+                  ? {
+                      ...c,
+                      Task: c.Task.map((t) =>
+                        t.taskPid === taskPid
+                          ? { ...t, title: newTaskTitle }
+                          : t
+                      ),
+                    }
+                  : c
+              );
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+
       invalidatesTags: ["project"],
     }),
     updateColumnTitle: builder.mutation<
@@ -329,4 +383,5 @@ export const {
   useReorderSingleColumnMutation,
   useReorderTwoColumnsMutation,
   useDeleteTaskMutation,
+  useEditTaskTitleMutation,
 } = projectsApi;

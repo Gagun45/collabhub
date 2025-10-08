@@ -31,3 +31,8 @@ export const deleteTask = async (taskPid: string) => {
     );
   });
 };
+
+export const editTaskTitle = async (taskPid: string, newTaskTitle: string) => {
+  if (!newTaskTitle) return;
+  await prisma.task.update({ where: { taskPid }, data: { title: newTaskTitle } });
+};
