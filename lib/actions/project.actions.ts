@@ -25,7 +25,7 @@ export const createNewProject = async (
       data: {
         title,
         createdById: user.id,
-        teamId: team.id,
+        teamPid: teamPid,
         projectPid: nanoid(6),
       },
     });
@@ -72,4 +72,15 @@ export const getProjectByProjectPid = async (
     console.log("Get project by project pid error: ", error);
     return { success: false, message: SMTH_WENT_WRONG, project: null };
   }
+};
+
+export const editProjectTitle = async (
+  projectPid: string,
+  newProjectTitle: string
+) => {
+  if (!newProjectTitle) return;
+  await prisma.project.update({
+    where: { projectPid },
+    data: { title: newProjectTitle },
+  });
 };

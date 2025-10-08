@@ -31,13 +31,14 @@ export const reorderProjectColumns = async (newColumns: string[]) => {
   await prisma.$transaction(updates);
 };
 
-export const updateColumnTitle = async (
+export const editColumnTitle = async (
   columnPid: string,
-  newTitle: string
+  newColumntitle: string
 ) => {
+  if (!newColumntitle) return;
   await prisma.column.update({
     where: { columnPid },
-    data: { title: newTitle },
+    data: { title: newColumntitle },
   });
 };
 
@@ -77,4 +78,3 @@ export const reorderTwoColumns = async (
     );
   });
 };
-

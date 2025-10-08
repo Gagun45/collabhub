@@ -1,13 +1,14 @@
 import {
   createNewColumn,
   deleteColumn,
+  editColumnTitle,
   reorderProjectColumns,
   reorderSingleColumn,
   reorderTwoColumns,
-  updateColumnTitle,
 } from "@/lib/actions/column.actions";
 import {
   createNewProject,
+  editProjectTitle,
   getProjectByProjectPid,
   getTeamProjectsByTeamPid,
 } from "@/lib/actions/project.actions";
@@ -207,16 +208,75 @@ export const projectsApi = createApi({
 
       invalidatesTags: ["project"],
     }),
-    updateColumnTitle: builder.mutation<
+    editProjectTitle: builder.mutation<
       { success: boolean },
-      { columnPid: string; newTitle: string }
+      { newProjectTitle: string; projectPid: string }
     >({
-      queryFn: async ({ columnPid, newTitle }) => {
+      queryFn: async ({ newProjectTitle, projectPid }) => {
         try {
-          await updateColumnTitle(columnPid, newTitle);
+          await editProjectTitle(projectPid, newProjectTitle);
           return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { projectPid, newProjectTitle },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              draft.project!.title = newProjectTitle;
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+      invalidatesTags: ["project", "teamProjects"],
+    }),
+    editColumnTitle: builder.mutation<
+      { success: boolean },
+      { columnPid: string; newColumnTitle: string; projectPid: string }
+    >({
+      queryFn: async ({ columnPid, newColumnTitle }) => {
+        try {
+          await editColumnTitle(columnPid, newColumnTitle);
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      onQueryStarted: async (
+        { projectPid, columnPid, newColumnTitle },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getProjectByProjectPid",
+            { projectPid },
+            (draft) => {
+              draft.project!.Column = draft.project!.Column.map((c) =>
+                c.columnPid === columnPid
+                  ? {
+                      ...c,
+                      title: newColumnTitle,
+                    }
+                  : c
+              );
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
         }
       },
       invalidatesTags: ["project"],
@@ -377,11 +437,12 @@ export const {
   useGetProjectByProjectPidQuery,
   useCreateNewColumnMutation,
   useReorderProjectColumnsMutation,
-  useUpdateColumnTitleMutation,
+  useEditColumnTitleMutation,
   useDeleteColumnMutation,
   useCreateNewTaskMutation,
   useReorderSingleColumnMutation,
   useReorderTwoColumnsMutation,
   useDeleteTaskMutation,
   useEditTaskTitleMutation,
+  useEditProjectTitleMutation,
 } = projectsApi;

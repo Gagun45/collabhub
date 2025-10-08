@@ -49,12 +49,12 @@ const Task = ({ task, projectPid }: Props) => {
   if (isDragging)
     return (
       <div
-        className="opacity-35 outline-4 outline-blue-600 bg-blue-400 rounded-md px-2 py-4 flex items-center gap-2"
+        className="bg-blue-400 opacity-35 outline-4 outline-blue-600 rounded-md px-2 py-4 flex items-center gap-2"
         ref={setNodeRef}
         style={style}
       >
         <Button
-          className="size-6"
+          className="size-6 cursor-grab"
           variant={"ghost"}
           {...listeners}
           {...attributes}
@@ -62,7 +62,29 @@ const Task = ({ task, projectPid }: Props) => {
         >
           <MoveIcon className="size-4" />
         </Button>
-        <span className="break-all">{task.title}</span>
+        {editMode ? (
+          <Input
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={resetTitle}
+            onKeyDown={(e) => {
+              switch (e.key) {
+                case "Escape":
+                  resetTitle();
+                  break;
+                case "Enter":
+                  onEditTitle();
+                  break;
+              }
+            }}
+          />
+        ) : (
+          <span className="break-all" onClick={() => setEditMode(true)}>
+            {title}
+          </span>
+        )}
+
         <Button
           className="size-6 ml-auto"
           variant={"destructive"}
@@ -85,7 +107,7 @@ const Task = ({ task, projectPid }: Props) => {
       style={style}
     >
       <Button
-        className="size-6"
+        className="size-6 cursor-grab"
         variant={"ghost"}
         {...listeners}
         {...attributes}

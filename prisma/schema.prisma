@@ -86,8 +86,8 @@ model Project {
   id          Int      @id @default(autoincrement())
   projectPid  String   @unique
   title       String
-  teamId      Int
-  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamPid     String
+  team        Team     @relation(fields: [teamPid], references: [teamPid], onDelete: Cascade)
   createdById Int
   creator     User     @relation(fields: [createdById], references: [id])
   Column      Column[]

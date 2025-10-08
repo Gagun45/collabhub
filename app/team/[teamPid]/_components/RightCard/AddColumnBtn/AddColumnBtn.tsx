@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UNEXPECTED_ERROR } from "@/lib/constants";
 import { useCreateNewColumnMutation } from "@/redux/apis/projects.api";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface Props {
   projectPid: string;
@@ -11,25 +9,25 @@ interface Props {
 
 const AddColumnBtn = ({ projectPid }: Props) => {
   const [newTitle, setNewTitle] = useState("");
-  const [createColumn, { isLoading, isError }] = useCreateNewColumnMutation();
+  const [createColumn] = useCreateNewColumnMutation();
 
   const onCreate = async () => {
     if (!newTitle) return;
-    await createColumn({ projectPid, title: newTitle });
+    createColumn({ projectPid, title: newTitle });
     setNewTitle("");
   };
 
-  if (isError) {
-    toast.error(UNEXPECTED_ERROR);
-  }
-
   return (
-    <div className="flex gap-4 max-w-md">
+    <form
+      className="flex gap-4 max-w-md"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onCreate();
+      }}
+    >
       <Input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
-      <Button disabled={!newTitle || isLoading} onClick={onCreate}>
-        {isLoading ? "Loading..." : "Add column"}
-      </Button>
-    </div>
+      <Button disabled={!newTitle}>Add column</Button>
+    </form>
   );
 };
 export default AddColumnBtn;
