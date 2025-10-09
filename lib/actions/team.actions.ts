@@ -3,7 +3,7 @@
 import { nanoid } from "nanoid";
 import { prisma } from "../prisma";
 import type { newTeamSchemaType, SuccessAndMessageType } from "../types";
-import { getAuthUser } from "./helper";
+import { authOnly, getAuthUser } from "./helper";
 import type { Team } from "@prisma/client";
 import { SMTH_WENT_WRONG } from "../constants";
 
@@ -57,4 +57,34 @@ export const getTeamByTeamPid = async (
     console.log("Get team by team pid: ", error);
     return { success: false, message: SMTH_WENT_WRONG, team: null };
   }
+};
+
+export const getTeamByInviteToken = async (inviteToken: string) => {
+  const user = await authOnly();
+  if (!inviteToken) return null;
+  const team = await prisma.team.findUnique({
+    where: { inviteToken },
+    include: {
+      creator: { include: { UserInformation: true } },
+      TeamMembers: true,
+    },
+  });
+  if (!team) return null;
+  const isMember = team.TeamMembers.some((tm) => tm.userId === user.id);
+  return { team, isMember };
+};
+
+export const joinTeamByInviteToken = async (inviteToken: string) => {
+  const user = await authOnly();
+  const teamPid = await prisma.$transaction(async (tx) => {
+    const team = await tx.team.findUnique({ where: { inviteToken } });
+    if (!team) throw new Error("Invalid token");
+    const isMember = await tx.teamMember.findUnique({
+      where: { teamId_userId: { teamId: team.id, userId: user.id } },
+    });
+    if (isMember) throw new Error("Already a member");
+    await tx.teamMember.create({ data: { userId: user.id, teamId: team.id } });
+    return team.teamPid;
+  });
+  return teamPid;
 };

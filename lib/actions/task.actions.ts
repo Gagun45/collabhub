@@ -1,19 +1,31 @@
 "use server";
 
 import { prisma } from "../prisma";
+import { getAuthUser, verifyProjectAccessByProjectPid } from "./helper";
 
-export const createNewTask = async (columnPid: string, taskTitle: string) => {
+export const createNewTask = async (
+  columnPid: string,
+  taskTitle: string,
+  projectPid: string
+) => {
+  if (!taskTitle) return;
+  await verifyProjectAccessByProjectPid(projectPid);
   await prisma.$transaction(async (tx) => {
     const count = await tx.task.count({
       where: { columnPid },
     });
     await tx.task.create({
-      data: { title: taskTitle, columnPid, index: count + 1 },
+      data: {
+        title: taskTitle,
+        column: { connect: { columnPid } },
+        index: count + 1,
+      },
     });
   });
 };
 
-export const deleteTask = async (taskPid: string) => {
+export const deleteTask = async (taskPid: string, projectPid: string) => {
+  await verifyProjectAccessByProjectPid(projectPid);
   await prisma.$transaction(async (tx) => {
     const deletedTask = await tx.task.delete({ where: { taskPid } });
     const { columnPid } = deletedTask;
@@ -34,5 +46,10 @@ export const deleteTask = async (taskPid: string) => {
 
 export const editTaskTitle = async (taskPid: string, newTaskTitle: string) => {
   if (!newTaskTitle) return;
-  await prisma.task.update({ where: { taskPid }, data: { title: newTaskTitle } });
+  const user = await getAuthUser();
+  if (!user) return;
+  await prisma.task.update({
+    where: { taskPid },
+    data: { title: newTaskTitle },
+  });
 };

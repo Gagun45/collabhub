@@ -5,6 +5,7 @@ import Board from "./Board/Board";
 import { useEffect, useState } from "react";
 import { useEditProjectTitleMutation } from "@/redux/apis/projects.api";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   project: ProjectType;
@@ -34,29 +35,35 @@ const ProjectCard = ({ project }: Props) => {
   return (
     <Card className="w-full overflow-x-hidden">
       <CardContent className="space-y-4">
-        {editMode ? (
-          <Input
-            className="w-content"
-            autoFocus
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={resetTitle}
-            onKeyDown={(e) => {
-              switch (e.key) {
-                case "Escape":
-                  resetTitle();
-                  break;
-                case "Enter":
-                  onEditTitle();
-                  break;
-              }
-            }}
-          />
-        ) : (
-          <h2 className="break-all font-bold" onClick={() => setEditMode(true)}>
-            {title}
-          </h2>
-        )}
+        <div className="flex items-center">
+          {editMode ? (
+            <Input
+              className="w-content"
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={resetTitle}
+              onKeyDown={(e) => {
+                switch (e.key) {
+                  case "Escape":
+                    resetTitle();
+                    break;
+                  case "Enter":
+                    onEditTitle();
+                    break;
+                }
+              }}
+            />
+          ) : (
+            <h2
+              className="break-all font-bold"
+              onClick={() => setEditMode(true)}
+            >
+              {title}
+            </h2>
+          )}
+          <Button variant={'destructive'} className="ml-auto">Delete project</Button>
+        </div>
         <AddColumnBtn projectPid={project!.projectPid} />
         <Board project={project!} />
       </CardContent>

@@ -24,6 +24,7 @@ model User {
   Teams           Team[]
   TeamMember      TeamMember[]
   Projects        Project[]
+  ProjectMember   ProjectMember[]
 
   @@map("users")
 }
@@ -83,16 +84,26 @@ model TeamMember {
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
-  projectPid  String   @unique
-  title       String
-  teamPid     String
-  team        Team     @relation(fields: [teamPid], references: [teamPid], onDelete: Cascade)
-  createdById Int
-  creator     User     @relation(fields: [createdById], references: [id])
-  Column      Column[]
+  id            Int             @id @default(autoincrement())
+  projectPid    String          @unique
+  title         String
+  teamPid       String
+  team          Team            @relation(fields: [teamPid], references: [teamPid], onDelete: Cascade)
+  createdById   Int
+  creator       User            @relation(fields: [createdById], references: [id])
+  Column        Column[]
+  ProjectMember ProjectMember[]
 
   @@map("projects")
+}
+
+model ProjectMember {
+  projectId Int
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@unique([projectId, userId])
 }
 
 model Column {

@@ -184,6 +184,7 @@ const Board = ({ project }: Props) => {
       sensors={sensors}
     >
       <div className="flex gap-4 overflow-x-auto">
+        {columns.length === 0 && <span>No columns added yet!</span>}
         <SortableContext items={columns.map((c) => c.columnPid)}>
           {columns
             .slice()

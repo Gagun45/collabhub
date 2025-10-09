@@ -7,7 +7,10 @@ import type {
   ProjectType,
   SuccessAndMessageType,
 } from "../types";
-import { getAuthUser } from "./helper";
+import {
+  verifyProjectAccessByProjectPid,
+  verifyTeamAccessByTeamPid,
+} from "./helper";
 import { prisma } from "../prisma";
 import { nanoid } from "nanoid";
 
@@ -16,10 +19,7 @@ export const createNewProject = async (
   values: newProjectSchemaType
 ): Promise<SuccessAndMessageType> => {
   try {
-    const user = await getAuthUser();
-    if (!user) return { success: false, message: "Authorized only" };
-    const team = await prisma.team.findUnique({ where: { teamPid } });
-    if (!team) return { success: false, message: "Team not found" };
+    const { user } = await verifyTeamAccessByTeamPid(teamPid);
     const { title } = values;
     await prisma.project.create({
       data: {
@@ -40,9 +40,8 @@ export const getTeamProjectsByTeamPid = async (
   teamPid: string
 ): Promise<SuccessAndMessageType & { projects: Project[] }> => {
   try {
-    const user = await getAuthUser();
-    if (!user)
-      return { success: false, message: "Authorized only", projects: [] };
+    await verifyTeamAccessByTeamPid(teamPid);
+
     const projects = await prisma.project.findMany({
       where: { team: { teamPid } },
     });
@@ -79,8 +78,11 @@ export const editProjectTitle = async (
   newProjectTitle: string
 ) => {
   if (!newProjectTitle) return;
+  await verifyProjectAccessByProjectPid(projectPid);
   await prisma.project.update({
     where: { projectPid },
     data: { title: newProjectTitle },
   });
 };
+
+export const deleteProject = async ({}) => {};

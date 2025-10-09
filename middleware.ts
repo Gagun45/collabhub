@@ -9,8 +9,12 @@ export default auth(async function middleware(req) {
   const isLoggedIn = !!req.auth;
   const pathname = req.nextUrl.pathname;
 
+  const route = pathname.split("/")[1];
+
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
-  const isProtectedRoute = PROTECTED_ROUTES.includes(pathname);
+  const isProtectedRoute =
+    PROTECTED_ROUTES.includes(pathname) ||
+    PROTECTED_ROUTES.some((r) => r === route);
 
   if (isLoggedIn && isAuthRoute)
     return NextResponse.redirect(new URL("/", req.nextUrl));
