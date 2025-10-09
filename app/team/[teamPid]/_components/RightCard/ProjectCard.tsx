@@ -3,11 +3,16 @@ import type { ProjectType } from "@/lib/types";
 import AddColumnBtn from "./AddColumnBtn/AddColumnBtn";
 import Board from "./Board/Board";
 import { useEffect, useState } from "react";
-import { useEditProjectTitleMutation } from "@/redux/apis/projects.api";
+import {
+  useDeleteProjectMutation,
+  useEditProjectTitleMutation,
+} from "@/redux/apis/projects.api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { $Enums } from "@prisma/client";
 import InviteToProject from "./InviteToProject/InviteToProject";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface Props {
   project: ProjectType;
@@ -22,6 +27,19 @@ const ProjectCard = ({ project, role }: Props) => {
   }, [project.title]);
   const [editMode, setEditMode] = useState(false);
   const [editProjectTitle] = useEditProjectTitleMutation();
+  const [deleteProject] = useDeleteProjectMutation();
+
+  const router = useRouter();
+
+  const onDeleteProject = async () => {
+    try {
+      await deleteProject({ projectPid }).unwrap();
+      router.push("/my-teams");
+    } catch {
+      toast.error("Something went wrong");
+    }
+  };
+
   const resetTitle = () => {
     setTitle(project.title);
     setEditMode(false);
@@ -77,9 +95,16 @@ const ProjectCard = ({ project, role }: Props) => {
                 {title}
               </h2>
             ))}
-          <Button variant={"destructive"} className="ml-auto">
-            Delete project
-          </Button>
+
+          {role === "ADMIN" && (
+            <Button
+              onClick={onDeleteProject}
+              variant={"destructive"}
+              className="ml-auto"
+            >
+              Delete project
+            </Button>
+          )}
         </div>
         <AddColumnBtn projectPid={project!.projectPid} />
         <Board project={project!} />

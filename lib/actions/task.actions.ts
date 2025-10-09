@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "../prisma";
-import { getAuthUser, verifyProjectAccessByProjectPidOrThrow } from "./helper";
+import { verifyProjectAccessByProjectPidOrThrow } from "./helper";
 
 export const createNewTask = async (
   columnPid: string,
@@ -44,10 +44,13 @@ export const deleteTask = async (taskPid: string, projectPid: string) => {
   });
 };
 
-export const editTaskTitle = async (taskPid: string, newTaskTitle: string) => {
-  if (!newTaskTitle) return;
-  const user = await getAuthUser();
-  if (!user) return;
+export const editTaskTitle = async (
+  taskPid: string,
+  newTaskTitle: string,
+  projectPid: string
+) => {
+  if (!newTaskTitle) throw new Error("Missing title");
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.task.update({
     where: { taskPid },
     data: { title: newTaskTitle },

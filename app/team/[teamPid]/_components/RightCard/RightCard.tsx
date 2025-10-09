@@ -8,7 +8,7 @@ const RightCard = () => {
   const projectPid = useSearchParams().get("projectPid");
   const { data, isLoading, error, isError } = useGetProjectByProjectPidQuery(
     { projectPid: projectPid ?? "" },
-    { skip: !projectPid, refetchOnMountOrArgChange: true,  }
+    { skip: !projectPid }
   );
 
   if (isLoading)
@@ -35,6 +35,7 @@ const RightCard = () => {
     );
 
   const { project, role } = data;
+
 
   return <ProjectCard project={project} role={role} />;
 };

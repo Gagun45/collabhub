@@ -8,8 +8,10 @@ import {
 } from "@/lib/actions/column.actions";
 import {
   createNewProject,
+  deleteProject,
   editProjectTitle,
   getProjectByProjectPid,
+  getTeamMembersToInvite,
   getTeamProjectsByTeamPid,
 } from "@/lib/actions/project.actions";
 import {
@@ -20,6 +22,7 @@ import {
 import { UNEXPECTED_ERROR } from "@/lib/constants";
 import type {
   newProjectSchemaType,
+  ProjectMembersToInvite,
   ProjectType,
   SuccessAndMessageType,
 } from "@/lib/types";
@@ -29,8 +32,26 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 export const projectsApi = createApi({
   reducerPath: "projectsApi",
   baseQuery: fakeBaseQuery(),
-  tagTypes: ["teamProjects", "project"],
+  tagTypes: ["teamProjects", "project", "membersToInvite"],
   endpoints: (builder) => ({
+    getTeamMembersToInvite: builder.query<
+      {
+        members: ProjectMembersToInvite[];
+      },
+      { projectPid: string }
+    >({
+      queryFn: async ({ projectPid }) => {
+        try {
+          const members = await getTeamMembersToInvite(projectPid);
+          return { data: { members } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      providesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
+    }),
     createNewTask: builder.mutation<
       { success: boolean },
       { columnPid: string; taskTitle: string; projectPid: string }
@@ -79,7 +100,22 @@ export const projectsApi = createApi({
           patch.undo();
         }
       },
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
+    }),
+    deleteProject: builder.mutation<
+      SuccessAndMessageType,
+      { projectPid: string }
+    >({
+      queryFn: async ({ projectPid }) => {
+        try {
+          const result = await deleteProject(projectPid);
+          return { data: { success: true, message: result.message } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
     }),
     deleteTask: builder.mutation<
       { success: boolean },
@@ -121,7 +157,9 @@ export const projectsApi = createApi({
           patch.undo();
         }
       },
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
     editTaskTitle: builder.mutation<
       { success: boolean },
@@ -132,9 +170,9 @@ export const projectsApi = createApi({
         columnPid: string;
       }
     >({
-      queryFn: async ({ taskPid, newTaskTitle }) => {
+      queryFn: async ({ taskPid, newTaskTitle, projectPid }) => {
         try {
-          await editTaskTitle(taskPid, newTaskTitle);
+          await editTaskTitle(taskPid, newTaskTitle, projectPid);
           return { data: { success: true } };
         } catch {
           return { error: UNEXPECTED_ERROR };
@@ -171,7 +209,9 @@ export const projectsApi = createApi({
         }
       },
 
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
     deleteColumn: builder.mutation<
       { success: boolean },
@@ -206,7 +246,9 @@ export const projectsApi = createApi({
           patch.undo();
         }
       },
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
 
     editProjectTitle: builder.mutation<
@@ -280,7 +322,9 @@ export const projectsApi = createApi({
           patch.undo();
         }
       },
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
     reorderTwoColumns: builder.mutation<
       { success: boolean },
@@ -312,7 +356,9 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
     reorderSingleColumn: builder.mutation<
       { success: boolean },
@@ -327,7 +373,9 @@ export const projectsApi = createApi({
         }
       },
 
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
     reorderProjectColumns: builder.mutation<
       { success: boolean },
@@ -341,7 +389,9 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
     createNewColumn: builder.mutation<
       { success: boolean },
@@ -382,12 +432,14 @@ export const projectsApi = createApi({
           patch.undo();
         }
       },
-      invalidatesTags: ["project"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+      ],
     }),
     getProjectByProjectPid: builder.query<
       SuccessAndMessageType & {
         project: ProjectType | null;
-        role: $Enums.ProjectRole | null
+        role: $Enums.ProjectRole | null;
       },
       { projectPid: string }
     >({
@@ -400,7 +452,10 @@ export const projectsApi = createApi({
           return { error: "Unexpected error" };
         }
       },
-      providesTags: ["project"],
+      providesTags: (result, error, { projectPid }) =>
+        result?.project
+          ? [{ type: "project", id: projectPid }]
+          : [{ type: "project", id: "list" }],
     }),
     getTeamProjectsByTeamPid: builder.query<
       SuccessAndMessageType & { projects: Project[] },
@@ -449,4 +504,6 @@ export const {
   useDeleteTaskMutation,
   useEditTaskTitleMutation,
   useEditProjectTitleMutation,
+  useDeleteProjectMutation,
+  useGetTeamMembersToInviteQuery,
 } = projectsApi;

@@ -106,16 +106,24 @@ export const editProjectTitle = async (
   newProjectTitle: string
 ) => {
   if (!newProjectTitle) return;
-  await verifyProjectAccessByProjectPidOrThrow(projectPid);
+  const { role } = await verifyProjectAccessByProjectPidOrThrow(projectPid);
+  if (role !== "ADMIN") return;
   await prisma.project.update({
     where: { projectPid },
     data: { title: newProjectTitle },
   });
 };
 
-export const deleteProject = async ({}) => {};
+export const deleteProject = async (
+  projectPid: string
+): Promise<SuccessAndMessageType> => {
+  const { role } = await verifyProjectAccessByProjectPidOrThrow(projectPid);
+  if (role !== "ADMIN") throw new Error("Forbidden");
+  await prisma.project.delete({ where: { projectPid } });
+  return { message: "Project deleted", success: true };
+};
 
-export const getTeamMembersByProjectPid = async (projectPid: string) => {
+export const getTeamMembersToInvite = async (projectPid: string) => {
   const { project } = await verifyProjectAccessByProjectPidOrThrow(projectPid);
   const teamPid = project.teamPid;
   const team = await prisma.team.findUnique({
@@ -129,7 +137,7 @@ export const getTeamMembersByProjectPid = async (projectPid: string) => {
   const projectMembers = await prisma.projectMember.findMany({
     where: { project: { projectPid } },
   });
-  if (!team) return null;
+  if (!team) throw new Error("Team not found");
   const availableMembers = team.TeamMembers.filter(
     (tm) => !projectMembers.some((pm) => pm.userId === tm.userId)
   );
