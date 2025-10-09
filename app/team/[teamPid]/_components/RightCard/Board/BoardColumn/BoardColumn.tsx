@@ -3,14 +3,10 @@ import type { Column, Task as TaskType } from "@prisma/client";
 import Task from "./Task/Task";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { MoveHorizontalIcon, TrashIcon } from "lucide-react";
-import {
-  useCreateNewTaskMutation,
-  useDeleteColumnMutation,
-  useEditColumnTitleMutation,
-} from "@/redux/apis/kanban.api";
+import { useDeleteColumnMutation } from "@/redux/apis/kanban.api";
+import EditableColumnTitle from "./EditableColumnTitle/EditableColumnTitle";
+import AddTaskBtn from "./AddTaskBtn/AddTaskBtn";
 
 interface Props {
   column: Column;
@@ -19,36 +15,10 @@ interface Props {
 }
 
 const BoardColumn = ({ column, tasks }: Props) => {
-  const { columnPid, projectPid } = column;
-  const [newTask, setNewTask] = useState("");
-  const [createTask] = useCreateNewTaskMutation();
+  const { columnPid, projectPid, title } = column;
+
   const [deleteColumn] = useDeleteColumnMutation();
-  const [title, setTitle] = useState(column.title);
-  const [editMode, setEditMode] = useState(false);
-  const [editColumnTitle] = useEditColumnTitleMutation();
-  const resetTitle = () => {
-    setTitle(column.title);
-    setEditMode(false);
-  };
 
-  const onEditTitle = () => {
-    if (!title || title === column.title) {
-      resetTitle();
-      return;
-    }
-    editColumnTitle({ columnPid, projectPid, newColumnTitle: title });
-    setEditMode(false);
-  };
-
-  const onAddNewTask = async () => {
-    if (!newTask) return;
-    createTask({
-      columnPid: column.columnPid,
-      taskTitle: newTask,
-      projectPid: column.projectPid,
-    });
-    setNewTask("");
-  };
   const {
     setNodeRef,
     attributes,
@@ -79,38 +49,12 @@ const BoardColumn = ({ column, tasks }: Props) => {
           >
             <MoveHorizontalIcon className="size-4" />
           </Button>
-          {editMode ? (
-            <Input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={resetTitle}
-              onKeyDown={(e) => {
-                switch (e.key) {
-                  case "Escape":
-                    resetTitle();
-                    break;
-                  case "Enter":
-                    onEditTitle();
-                    break;
-                }
-              }}
-            />
-          ) : (
-            <span className="break-all" onClick={() => setEditMode(true)}>
-              {title}
-            </span>
-          )}
-          <Button
-            className="size-8 ml-auto"
-            variant={"destructive"}
-            onClick={() =>
-              deleteColumn({
-                columnPid: column.columnPid,
-                projectPid: column.projectPid,
-              })
-            }
-          >
+          <EditableColumnTitle
+            columnPid={columnPid}
+            columnTitle={title}
+            projectPid={projectPid}
+          />
+          <Button className="size-8 ml-auto" variant={"destructive"}>
             <TrashIcon />
           </Button>
         </div>
@@ -129,20 +73,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
             ))}
           </SortableContext>
         </div>
-        <form
-          className="flex items-center gap-2 px-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onAddNewTask();
-          }}
-        >
-          <Input
-            placeholder="Task..."
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-          />
-          <Button disabled={!newTask}>Add task</Button>
-        </form>
+        <AddTaskBtn columnPid={columnPid} projectPid={projectPid} />
       </div>
     );
   return (
@@ -161,35 +92,19 @@ const BoardColumn = ({ column, tasks }: Props) => {
         >
           <MoveHorizontalIcon className="size-4" />
         </Button>
-        {editMode ? (
-          <Input
-            autoFocus
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={resetTitle}
-            onKeyDown={(e) => {
-              switch (e.key) {
-                case "Escape":
-                  resetTitle();
-                  break;
-                case "Enter":
-                  onEditTitle();
-                  break;
-              }
-            }}
-          />
-        ) : (
-          <span className="break-all" onClick={() => setEditMode(true)}>
-            {title}
-          </span>
-        )}
+        <EditableColumnTitle
+          columnPid={columnPid}
+          columnTitle={title}
+          projectPid={projectPid}
+        />
+
         <Button
           className="size-8 ml-auto"
           variant={"destructive"}
           onClick={() =>
             deleteColumn({
-              columnPid: column.columnPid,
-              projectPid: column.projectPid,
+              columnPid,
+              projectPid,
             })
           }
         >
@@ -211,20 +126,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
           ))}
         </SortableContext>
       </div>
-      <form
-        className="flex items-center gap-2 px-4 mt-auto"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onAddNewTask();
-        }}
-      >
-        <Input
-          placeholder="Task..."
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-        />
-        <Button disabled={!newTask}>Add task</Button>
-      </form>
+      <AddTaskBtn columnPid={columnPid} projectPid={projectPid} />
     </div>
   );
 };
