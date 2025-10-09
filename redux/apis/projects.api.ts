@@ -1,4 +1,3 @@
-
 import {
   addMemberToProjectByProjectPid,
   createNewProject,
@@ -58,7 +57,7 @@ export const projectsApi = createApi({
         { type: "project", id: projectPid },
       ],
     }),
-    
+
     deleteProject: builder.mutation<
       SuccessAndMessageType,
       { projectPid: string }
@@ -72,12 +71,10 @@ export const projectsApi = createApi({
         }
       },
     }),
-    
-    
 
     editProjectTitle: builder.mutation<
       { success: boolean },
-      { newProjectTitle: string; projectPid: string }
+      { newProjectTitle: string; projectPid: string; teamPid: string }
     >({
       queryFn: async ({ newProjectTitle, projectPid }) => {
         try {
@@ -88,29 +85,42 @@ export const projectsApi = createApi({
         }
       },
       onQueryStarted: async (
-        { projectPid, newProjectTitle },
+        { projectPid, newProjectTitle, teamPid },
         { dispatch, queryFulfilled }
       ) => {
-        const patch = dispatch(
-          projectsApi.util.updateQueryData(
-            "getProjectByProjectPid",
-            { projectPid },
-            (draft) => {
-              draft.project!.title = newProjectTitle;
-            }
-          )
-        );
+        const patchResults = [
+          dispatch(
+            projectsApi.util.updateQueryData(
+              "getProjectByProjectPid",
+              { projectPid },
+              (draft) => {
+                draft.project!.title = newProjectTitle;
+              }
+            )
+          ),
+          dispatch(
+            projectsApi.util.updateQueryData(
+              "getTeamProjectsByTeamPid",
+              { teamPid },
+              (draft) => {
+                draft.projects = draft.projects.map((p) =>
+                  p.projectPid === projectPid
+                    ? { ...p, title: newProjectTitle }
+                    : p
+                );
+              }
+            )
+          ),
+        ];
         try {
           await queryFulfilled;
         } catch {
-          patch.undo();
+          patchResults.forEach((patch) => patch.undo());
         }
       },
       invalidatesTags: ["project", "teamProjects"],
     }),
 
-    
-    
     getProjectByProjectPid: builder.query<
       SuccessAndMessageType & {
         project: ProjectType | null;
