@@ -1,2 +1,2 @@
-export const AUTH_ROUTES = ["/login"];
-export const PROTECTED_ROUTES = ["/profile", "team"];
+export const AUTH_ROUTES = ["login"];
+export const PROTECTED_ROUTES = ["profile", "team", 'my-teams'];
