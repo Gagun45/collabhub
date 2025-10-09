@@ -4,7 +4,7 @@ import type {
   newProjectSchema,
   newTeamSchema,
 } from "./zod-schemas";
-import type { Prisma } from "@prisma/client";
+import type { Column, Prisma, Task } from "@prisma/client";
 
 export type editProfileSchemaType = z.infer<typeof editProfileSchema>;
 export type newTeamSchemaType = z.infer<typeof newTeamSchema>;
@@ -22,12 +22,16 @@ export type TeamType = Prisma.TeamGetPayload<{
 
 export type ProjectType = Prisma.ProjectGetPayload<{
   include: {
-    Column: { include: { Task: true } };
     ProjectMember: {
       include: { user: { include: { UserInformation: true } } };
     };
   };
 }>;
+
+export type BoardType = {
+  columns: Column[];
+  tasks: Task[];
+};
 
 export type ProjectMembersToInvite = Prisma.TeamMemberGetPayload<{
   include: { user: { include: { UserInformation: true } } };

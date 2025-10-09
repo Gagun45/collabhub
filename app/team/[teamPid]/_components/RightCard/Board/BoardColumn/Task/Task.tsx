@@ -1,14 +1,11 @@
 import { Button } from "@/components/ui/button";
-import {
-  useDeleteTaskMutation,
-  useEditTaskTitleMutation,
-} from "@/redux/apis/projects.api";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "@prisma/client";
 import { MoveIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { useDeleteTaskMutation, useEditTaskTitleMutation } from "@/redux/apis/kanban.api";
 
 interface Props {
   task: Task;
@@ -16,7 +13,7 @@ interface Props {
 }
 
 const Task = ({ task, projectPid }: Props) => {
-  const { columnPid, taskPid } = task;
+  const { taskPid } = task;
   const [deleteTask] = useDeleteTaskMutation();
   const [editTaskTitle] = useEditTaskTitleMutation();
   const [title, setTitle] = useState(task.title);
@@ -30,7 +27,7 @@ const Task = ({ task, projectPid }: Props) => {
       resetTitle();
       return;
     }
-    editTaskTitle({ columnPid, taskPid, newTaskTitle: title, projectPid });
+    editTaskTitle({ taskPid, newTaskTitle: title, projectPid });
     setEditMode(false);
   };
   const {
@@ -67,17 +64,6 @@ const Task = ({ task, projectPid }: Props) => {
             autoFocus
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onBlur={resetTitle}
-            onKeyDown={(e) => {
-              switch (e.key) {
-                case "Escape":
-                  resetTitle();
-                  break;
-                case "Enter":
-                  onEditTitle();
-                  break;
-              }
-            }}
           />
         ) : (
           <span className="break-all" onClick={() => setEditMode(true)}>
@@ -88,13 +74,6 @@ const Task = ({ task, projectPid }: Props) => {
         <Button
           className="size-6 ml-auto"
           variant={"destructive"}
-          onClick={() =>
-            deleteTask({
-              projectPid,
-              taskPid: task.taskPid,
-              columnPid: task.columnPid,
-            })
-          }
         >
           <TrashIcon className="size-4" />
         </Button>
@@ -145,7 +124,6 @@ const Task = ({ task, projectPid }: Props) => {
           deleteTask({
             projectPid,
             taskPid: task.taskPid,
-            columnPid: task.columnPid,
           })
         }
       >

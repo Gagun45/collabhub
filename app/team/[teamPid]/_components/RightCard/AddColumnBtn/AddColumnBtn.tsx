@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCreateNewColumnMutation } from "@/redux/apis/projects.api";
+import { useCreateNewColumnMutation } from "@/redux/apis/kanban.api";
 import { useState } from "react";
 
 interface Props {

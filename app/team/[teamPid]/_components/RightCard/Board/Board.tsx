@@ -1,4 +1,3 @@
-import type { ProjectType } from "@/lib/types";
 import {
   DndContext,
   DragOverlay,
@@ -13,30 +12,34 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { useEffect, useState } from "react";
 import BoardColumn from "./BoardColumn/BoardColumn";
-import {
-  useReorderProjectColumnsMutation,
-  useReorderSingleColumnMutation,
-  useReorderTwoColumnsMutation,
-} from "@/redux/apis/projects.api";
 import type { Column, Task as TaskType } from "@prisma/client";
 import Task from "./BoardColumn/Task/Task";
 import { createPortal } from "react-dom";
+import {
+  useGetKanbanBoardQuery,
+  useReorderProjectColumnsMutation,
+  useReorderSingleColumnMutation,
+  useReorderTwoColumnsMutation,
+} from "@/redux/apis/kanban.api";
+import LoadingIndicator from "@/components/General/LoadingIndicator";
 
 interface Props {
-  project: ProjectType;
+  projectPid: string;
 }
 
-const Board = ({ project }: Props) => {
-  const [columns, setColumns] = useState<Column[]>(project.Column);
-  const [tasks, setTasks] = useState<TaskType[]>(
-    project.Column.flatMap((c) => c.Task.map((t) => t))
-  );
+const Board = ({ projectPid }: Props) => {
+  const { data: board, isLoading: BoardIsLoading } = useGetKanbanBoardQuery({
+    projectPid,
+  });
+  const [columns, setColumns] = useState<Column[]>([]);
+  const [tasks, setTasks] = useState<TaskType[]>([]);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   useEffect(() => {
-    setColumns(project.Column.slice().sort((a, b) => a.index - b.index));
-    setTasks(project.Column.flatMap((c) => c.Task));
-  }, [project.Column]);
+    if (!board) return;
+    setColumns(board.columns);
+    setTasks(board.tasks);
+  }, [board]);
 
   const [reorderCols] = useReorderProjectColumnsMutation();
   const [reorderSingleCol] = useReorderSingleColumnMutation();
@@ -64,7 +67,7 @@ const Board = ({ project }: Props) => {
       setColumns(reordered);
       reorderCols({
         newColumns: reordered.map((c) => c.columnPid),
-        projectPid: project.projectPid,
+        projectPid,
       });
     }
     if (activeType === "Task") {
@@ -90,7 +93,7 @@ const Board = ({ project }: Props) => {
             .map((t) => t.taskPid);
           reorderSingleCol({
             columnPid: toColumnPid,
-            projectPid: project.projectPid,
+            projectPid,
             newTasksOrderPids: affectedTasksPids,
           });
         } else {
@@ -124,7 +127,7 @@ const Board = ({ project }: Props) => {
             toColumnPid,
             fromColumnTaskPids,
             toColumnTaskPids,
-            projectPid: project.projectPid,
+            projectPid,
           });
         }
       }
@@ -159,7 +162,7 @@ const Board = ({ project }: Props) => {
           toColumnPid,
           fromColumnTaskPids,
           toColumnTaskPids,
-          projectPid: project.projectPid,
+          projectPid,
         });
       }
     }
@@ -176,6 +179,8 @@ const Board = ({ project }: Props) => {
       setActiveTask(activeTask);
     }
   };
+
+  if (BoardIsLoading) return <LoadingIndicator />;
 
   return (
     <DndContext
@@ -196,7 +201,7 @@ const Board = ({ project }: Props) => {
                 tasks={tasks
                   .filter((t) => t.columnPid === col.columnPid)
                   .sort((a, b) => b.index - a.index)}
-                projectPid={project.projectPid}
+                projectPid={projectPid}
               />
             ))}
         </SortableContext>
@@ -205,15 +210,13 @@ const Board = ({ project }: Props) => {
             {activeColumn && (
               <BoardColumn
                 column={activeColumn}
-                projectPid={project.projectPid}
+                projectPid={projectPid}
                 tasks={tasks
                   .filter((t) => t.columnPid === activeColumn.columnPid)
                   .sort((a, b) => b.index - a.index)}
               />
             )}
-            {activeTask && (
-              <Task task={activeTask} projectPid={project.projectPid} />
-            )}
+            {activeTask && <Task task={activeTask} projectPid={projectPid} />}
           </DragOverlay>,
           document.body
         )}

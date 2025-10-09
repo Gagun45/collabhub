@@ -106,8 +106,8 @@ const ProjectCard = ({ project, role }: Props) => {
             </Button>
           )}
         </div>
-        <AddColumnBtn projectPid={project!.projectPid} />
-        <Board project={project!} />
+        <AddColumnBtn projectPid={projectPid} />
+        <Board projectPid={projectPid} />
       </CardContent>
     </Card>
   );

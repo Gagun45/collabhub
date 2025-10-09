@@ -5,12 +5,12 @@ import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { MoveHorizontalIcon, TrashIcon } from "lucide-react";
 import {
   useCreateNewTaskMutation,
   useDeleteColumnMutation,
   useEditColumnTitleMutation,
-} from "@/redux/apis/projects.api";
-import { MoveHorizontalIcon, TrashIcon } from "lucide-react";
+} from "@/redux/apis/kanban.api";
 
 interface Props {
   column: Column;
@@ -65,85 +65,85 @@ const BoardColumn = ({ column, tasks }: Props) => {
   if (isDragging)
     return (
       <div
-      className="w-80 opacity-35 rounded-md flex flex-col gap-2 pb-2 shrink-0 border-2 overflow-hidden border-blue-400"
-      ref={setNodeRef}
-      style={style}
-    >
-      <div className="flex items-center bg-blue-400 px-1 py-4 gap-2">
-        <Button
-          className="size-6 cursor-grab"
-          variant={"ghost"}
-          {...listeners}
-          {...attributes}
-          style={{ touchAction: "none" }}
-        >
-          <MoveHorizontalIcon className="size-4" />
-        </Button>
-        {editMode ? (
-          <Input
-            autoFocus
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={resetTitle}
-            onKeyDown={(e) => {
-              switch (e.key) {
-                case "Escape":
-                  resetTitle();
-                  break;
-                case "Enter":
-                  onEditTitle();
-                  break;
-              }
-            }}
-          />
-        ) : (
-          <span className="break-all" onClick={() => setEditMode(true)}>
-            {title}
-          </span>
-        )}
-        <Button
-          className="size-8 ml-auto"
-          variant={"destructive"}
-          onClick={() =>
-            deleteColumn({
-              columnPid: column.columnPid,
-              projectPid: column.projectPid,
-            })
-          }
-        >
-          <TrashIcon />
-        </Button>
-      </div>
-
-      <div className="w-full flex flex-col gap-4 px-4 py-2">
-        {tasks.length === 0 && (
-          <span className="text-center p-2">No tasks yet!</span>
-        )}
-        <SortableContext items={tasks.map((t) => t.taskPid)}>
-          {tasks.map((task) => (
-            <Task
-              task={task}
-              key={task.taskPid}
-              projectPid={column.projectPid}
-            />
-          ))}
-        </SortableContext>
-      </div>
-      <form
-        className="flex items-center gap-2 px-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onAddNewTask();
-        }}
+        className="w-80 opacity-35 rounded-md flex flex-col gap-2 pb-2 shrink-0 border-2 overflow-hidden border-blue-400"
+        ref={setNodeRef}
+        style={style}
       >
-        <Input
-          placeholder="Task..."
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-        />
-        <Button disabled={!newTask}>Add task</Button>
-      </form>
-    </div>
+        <div className="flex items-center bg-blue-400 px-1 py-4 gap-2">
+          <Button
+            className="size-6 cursor-grab"
+            variant={"ghost"}
+            {...listeners}
+            {...attributes}
+            style={{ touchAction: "none" }}
+          >
+            <MoveHorizontalIcon className="size-4" />
+          </Button>
+          {editMode ? (
+            <Input
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={resetTitle}
+              onKeyDown={(e) => {
+                switch (e.key) {
+                  case "Escape":
+                    resetTitle();
+                    break;
+                  case "Enter":
+                    onEditTitle();
+                    break;
+                }
+              }}
+            />
+          ) : (
+            <span className="break-all" onClick={() => setEditMode(true)}>
+              {title}
+            </span>
+          )}
+          <Button
+            className="size-8 ml-auto"
+            variant={"destructive"}
+            onClick={() =>
+              deleteColumn({
+                columnPid: column.columnPid,
+                projectPid: column.projectPid,
+              })
+            }
+          >
+            <TrashIcon />
+          </Button>
+        </div>
+
+        <div className="w-full flex flex-col gap-4 px-4 py-2">
+          {tasks.length === 0 && (
+            <span className="text-center p-2">No tasks yet!</span>
+          )}
+          <SortableContext items={tasks.map((t) => t.taskPid)}>
+            {tasks.map((task) => (
+              <Task
+                task={task}
+                key={task.taskPid}
+                projectPid={column.projectPid}
+              />
+            ))}
+          </SortableContext>
+        </div>
+        <form
+          className="flex items-center gap-2 px-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onAddNewTask();
+          }}
+        >
+          <Input
+            placeholder="Task..."
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+          />
+          <Button disabled={!newTask}>Add task</Button>
+        </form>
+      </div>
     );
   return (
     <div
