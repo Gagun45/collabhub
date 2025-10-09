@@ -8,8 +8,8 @@ import type {
   SuccessAndMessageType,
 } from "../types";
 import {
-  verifyProjectAccessByProjectPid,
-  verifyTeamAccessByTeamPid,
+  verifyProjectAccessByProjectPidOrThrow,
+  verifyTeamAccessByTeamPidOrThrow,
 } from "./helper";
 import { prisma } from "../prisma";
 import { nanoid } from "nanoid";
@@ -19,15 +19,20 @@ export const createNewProject = async (
   values: newProjectSchemaType
 ): Promise<SuccessAndMessageType> => {
   try {
-    const { user } = await verifyTeamAccessByTeamPid(teamPid);
+    const { user } = await verifyTeamAccessByTeamPidOrThrow(teamPid);
     const { title } = values;
-    await prisma.project.create({
-      data: {
-        title,
-        createdById: user.id,
-        teamPid: teamPid,
-        projectPid: nanoid(6),
-      },
+    await prisma.$transaction(async (tx) => {
+      const project = await tx.project.create({
+        data: {
+          title,
+          createdById: user.id,
+          teamPid: teamPid,
+          projectPid: nanoid(6),
+        },
+      });
+      await tx.projectMember.create({
+        data: { projectId: project.id, userId: user.id, role: "ADMIN" },
+      });
     });
     return { success: true, message: "Project created" };
   } catch (error) {
@@ -40,11 +45,25 @@ export const getTeamProjectsByTeamPid = async (
   teamPid: string
 ): Promise<SuccessAndMessageType & { projects: Project[] }> => {
   try {
-    await verifyTeamAccessByTeamPid(teamPid);
+    const { user, role } = await verifyTeamAccessByTeamPidOrThrow(teamPid);
 
-    const projects = await prisma.project.findMany({
-      where: { team: { teamPid } },
-    });
+    let projects: Project[] = [];
+
+    if (role === "ADMIN") {
+      projects = await prisma.project.findMany({
+        where: {
+          team: { teamPid },
+        },
+      });
+    } else if (role === "USER") {
+      projects = await prisma.project.findMany({
+        where: {
+          team: { teamPid },
+          ProjectMember: { some: { userId: user.id } },
+        },
+      });
+    }
+
     return { success: true, message: "Team projects fetched", projects };
   } catch (error) {
     console.log("Get team projects by team pid error: ", error);
@@ -59,6 +78,7 @@ export const getProjectByProjectPid = async (
     project: ProjectType | null;
   }
 > => {
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   try {
     const project = await prisma.project.findUnique({
       where: { projectPid },
@@ -78,7 +98,7 @@ export const editProjectTitle = async (
   newProjectTitle: string
 ) => {
   if (!newProjectTitle) return;
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.project.update({
     where: { projectPid },
     data: { title: newProjectTitle },

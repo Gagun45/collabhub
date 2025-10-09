@@ -2,7 +2,11 @@
 
 import { nanoid } from "nanoid";
 import { prisma } from "../prisma";
-import type { newTeamSchemaType, SuccessAndMessageType } from "../types";
+import type {
+  newTeamSchemaType,
+  SuccessAndMessageType,
+  TeamType,
+} from "../types";
 import { authOnly, getAuthUser } from "./helper";
 import type { Team } from "@prisma/client";
 import { SMTH_WENT_WRONG } from "../constants";
@@ -12,14 +16,15 @@ export const createNewTeam = async (
 ): Promise<SuccessAndMessageType> => {
   try {
     const user = await getAuthUser();
-    if (!user) return { success: false, message: "Authorized only" };
+    if (!user || !user.id)
+      return { success: false, message: "Authorized only" };
     const { name } = values;
     const result = await prisma.$transaction(async (tx) => {
       const team = await tx.team.create({
         data: { name, teamPid: nanoid(5), creatorId: user.id },
       });
       await tx.teamMember.create({
-        data: { teamId: team.id, userId: user.id },
+        data: { teamId: team.id, userId: user.id, role: "ADMIN" },
       });
       return { success: true, message: "Team created" };
     });
@@ -48,9 +53,16 @@ export const getMyTeams = async (): Promise<
 
 export const getTeamByTeamPid = async (
   teamPid: string
-): Promise<SuccessAndMessageType & { team: Team | null }> => {
+): Promise<SuccessAndMessageType & { team: TeamType | null }> => {
   try {
-    const team = await prisma.team.findUnique({ where: { teamPid } });
+    const team = await prisma.team.findUnique({
+      where: { teamPid },
+      include: {
+        TeamMembers: {
+          include: { user: { include: { UserInformation: true } } },
+        },
+      },
+    });
     if (!team) return { success: false, message: "Team not found", team: null };
     return { success: true, message: "Team fetched", team };
   } catch (error) {

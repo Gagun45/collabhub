@@ -23,20 +23,21 @@ export const authOnly = async () => {
   return user;
 };
 
-export const verifyProjectAccessByProjectPid = async (projectPid: string) => {
+export const verifyProjectAccessByProjectPidOrThrow = async (projectPid: string) => {
   const user = await getAuthUser();
   if (!user || !user.id) throw new Error("Unauthorized");
   const project = await prisma.project.findUnique({
     where: { projectPid },
-    include: { team: { include: { TeamMembers: true } } },
+    include: { ProjectMember: true },
   });
   if (!project) throw new Error("Project not found");
-  const isMember = project.team.TeamMembers.some((tm) => tm.userId === user.id);
-  if (!isMember) throw new Error("Forbidden");
-  return { user, project };
+  const member = project.ProjectMember.find((tm) => tm.userId === user.id);
+  if (!member) throw new Error("Forbidden");
+  const role = member.role;
+  return { user, project, role };
 };
 
-export const verifyTeamAccessByTeamPid = async (teamPid: string) => {
+export const verifyTeamAccessByTeamPidOrThrow = async (teamPid: string) => {
   const user = await getAuthUser();
   if (!user || !user.id) throw new Error("Unauthorized");
   const team = await prisma.team.findUnique({
@@ -44,7 +45,8 @@ export const verifyTeamAccessByTeamPid = async (teamPid: string) => {
     include: { TeamMembers: true },
   });
   if (!team) throw new Error("Team not found");
-  const isMember = team.TeamMembers.some((tm) => tm.userId === user.id);
-  if (!isMember) throw new Error("Forbidden");
-  return { user, team };
+  const member = team.TeamMembers.find((tm) => tm.userId === user.id);
+  if (!member) throw new Error("Forbidden");
+  const role = member.role;
+  return { user, team, role };
 };

@@ -1,6 +1,6 @@
-import { verifyTeamAccessByTeamPid } from "@/lib/actions/helper";
 import { redirect } from "next/navigation";
 import TeamPageClient from "./_components/TeamPageClient";
+import { verifyTeamAccessByTeamPidOrThrow } from "@/lib/actions/helper";
 
 interface Props {
   params: Promise<{ teamPid: string }>;
@@ -9,7 +9,7 @@ interface Props {
 const TeamPage = async ({ params }: Props) => {
   const { teamPid } = await params;
   try {
-    await verifyTeamAccessByTeamPid(teamPid);
+    await verifyTeamAccessByTeamPidOrThrow(teamPid);
   } catch {
     redirect("/");
   }

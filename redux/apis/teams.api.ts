@@ -4,7 +4,11 @@ import {
   getTeamByTeamPid,
 } from "@/lib/actions/team.actions";
 import { UNEXPECTED_ERROR } from "@/lib/constants";
-import type { newTeamSchemaType, SuccessAndMessageType } from "@/lib/types";
+import type {
+  newTeamSchemaType,
+  SuccessAndMessageType,
+  TeamType,
+} from "@/lib/types";
 import type { Team } from "@prisma/client";
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -41,7 +45,7 @@ export const teamsApi = createApi({
       providesTags: ["myTeams"],
     }),
     getTeamByTeamPid: builder.query<
-      SuccessAndMessageType & { team: Team | null },
+      SuccessAndMessageType & { team: TeamType | null },
       { teamPid: string }
     >({
       queryFn: async ({ teamPid }) => {

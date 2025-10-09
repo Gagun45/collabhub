@@ -1,10 +1,10 @@
 "use server";
 
 import { prisma } from "../prisma";
-import { verifyProjectAccessByProjectPid } from "./helper";
+import { verifyProjectAccessByProjectPidOrThrow } from "./helper";
 
 export const createNewColumn = async (projectPid: string, title: string) => {
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.$transaction(async (tx) => {
     const count = await tx.column.count({
       where: { project: { projectPid } },
@@ -16,7 +16,7 @@ export const createNewColumn = async (projectPid: string, title: string) => {
 };
 
 export const getProjectColumnsByProjectPid = async (projectPid: string) => {
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   const columns = await prisma.column.findMany({
     where: { project: { projectPid } },
   });
@@ -27,7 +27,7 @@ export const reorderProjectColumns = async (
   newColumns: string[],
   projectPid: string
 ) => {
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   const updates = newColumns.map((columnPid, index) =>
     prisma.column.update({
       where: { columnPid },
@@ -44,7 +44,7 @@ export const editColumnTitle = async (
   projectPid: string
 ) => {
   if (!newColumntitle) return;
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.column.update({
     where: { columnPid },
     data: { title: newColumntitle },
@@ -52,7 +52,7 @@ export const editColumnTitle = async (
 };
 
 export const deleteColumn = async (columnPid: string, projectPid: string) => {
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.column.delete({ where: { columnPid } });
 };
 
@@ -60,7 +60,7 @@ export const reorderSingleColumn = async (
   newTasksOrderPids: string[],
   projectPid: string
 ) => {
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   const updates = newTasksOrderPids.map((taskPid, index) =>
     prisma.task.update({ where: { taskPid }, data: { index: index + 1 } })
   );
@@ -74,7 +74,7 @@ export const reorderTwoColumns = async (
   toColumnTaskPids: string[],
   projectPid: string
 ) => {
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.$transaction(async (tx) => {
     await Promise.all(
       fromColumnTaskPids.map((taskPid, index) =>

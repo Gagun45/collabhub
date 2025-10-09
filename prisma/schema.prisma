@@ -13,6 +13,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TeamRole {
+  ADMIN
+  USER
+}
+
+enum ProjectRole {
+  ADMIN
+  USER
+}
+
 model User {
   id              Int              @id @default(autoincrement())
   name            String?
@@ -77,8 +87,9 @@ model Team {
 model TeamMember {
   teamId Int
   userId Int
-  user   User @relation(fields: [userId], references: [id])
-  team   Team @relation(fields: [teamId], references: [id])
+  user   User     @relation(fields: [userId], references: [id])
+  team   Team     @relation(fields: [teamId], references: [id])
+  role   TeamRole @default(USER)
 
   @@unique([teamId, userId])
 }
@@ -100,8 +111,9 @@ model Project {
 model ProjectMember {
   projectId Int
   userId    Int
-  user      User    @relation(fields: [userId], references: [id])
-  project   Project @relation(fields: [projectId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+  project   Project     @relation(fields: [projectId], references: [id])
+  role      ProjectRole @default(USER)
 
   @@unique([projectId, userId])
 }

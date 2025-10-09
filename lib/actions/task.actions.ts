@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "../prisma";
-import { getAuthUser, verifyProjectAccessByProjectPid } from "./helper";
+import { getAuthUser, verifyProjectAccessByProjectPidOrThrow } from "./helper";
 
 export const createNewTask = async (
   columnPid: string,
@@ -9,7 +9,7 @@ export const createNewTask = async (
   projectPid: string
 ) => {
   if (!taskTitle) return;
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.$transaction(async (tx) => {
     const count = await tx.task.count({
       where: { columnPid },
@@ -25,7 +25,7 @@ export const createNewTask = async (
 };
 
 export const deleteTask = async (taskPid: string, projectPid: string) => {
-  await verifyProjectAccessByProjectPid(projectPid);
+  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   await prisma.$transaction(async (tx) => {
     const deletedTask = await tx.task.delete({ where: { taskPid } });
     const { columnPid } = deletedTask;
