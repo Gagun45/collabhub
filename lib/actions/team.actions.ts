@@ -7,8 +7,12 @@ import type {
   SuccessAndMessageType,
   TeamType,
 } from "../types";
-import { authOnly, getAuthUser } from "./helper";
-import type { Team } from "@prisma/client";
+import {
+  getAuthUser,
+  getAuthUserOrThrow,
+  verifyTeamAccessByTeamPidOrThrow,
+} from "./helper";
+import type { $Enums, Team } from "@prisma/client";
 import { SMTH_WENT_WRONG } from "../constants";
 
 export const createNewTeam = async (
@@ -53,8 +57,14 @@ export const getMyTeams = async (): Promise<
 
 export const getTeamByTeamPid = async (
   teamPid: string
-): Promise<SuccessAndMessageType & { team: TeamType | null }> => {
+): Promise<
+  SuccessAndMessageType & {
+    team: TeamType | null;
+    role: $Enums.TeamRole | null;
+  }
+> => {
   try {
+    const { role } = await verifyTeamAccessByTeamPidOrThrow(teamPid);
     const team = await prisma.team.findUnique({
       where: { teamPid },
       include: {
@@ -63,16 +73,22 @@ export const getTeamByTeamPid = async (
         },
       },
     });
-    if (!team) return { success: false, message: "Team not found", team: null };
-    return { success: true, message: "Team fetched", team };
+    if (!team)
+      return {
+        success: false,
+        message: "Team not found",
+        team: null,
+        role: null,
+      };
+    return { success: true, message: "Team fetched", team, role };
   } catch (error) {
     console.log("Get team by team pid: ", error);
-    return { success: false, message: SMTH_WENT_WRONG, team: null };
+    return { success: false, message: SMTH_WENT_WRONG, team: null, role: null };
   }
 };
 
 export const getTeamByInviteToken = async (inviteToken: string) => {
-  const user = await authOnly();
+  const user = await getAuthUserOrThrow();
   if (!inviteToken) return null;
   const team = await prisma.team.findUnique({
     where: { inviteToken },
@@ -87,13 +103,14 @@ export const getTeamByInviteToken = async (inviteToken: string) => {
 };
 
 export const joinTeamByInviteToken = async (inviteToken: string) => {
-  const user = await authOnly();
+  const user = await getAuthUserOrThrow();
   const teamPid = await prisma.$transaction(async (tx) => {
-    const team = await tx.team.findUnique({ where: { inviteToken } });
-    if (!team) throw new Error("Invalid token");
-    const isMember = await tx.teamMember.findUnique({
-      where: { teamId_userId: { teamId: team.id, userId: user.id } },
+    const team = await tx.team.findUnique({
+      where: { inviteToken },
+      include: { TeamMembers: true },
     });
+    if (!team) throw new Error("Invalid token");
+    const isMember = team.TeamMembers.some((tm) => tm.userId === user.id);
     if (isMember) throw new Error("Already a member");
     await tx.teamMember.create({ data: { userId: user.id, teamId: team.id } });
     return team.teamPid;

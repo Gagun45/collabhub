@@ -21,7 +21,16 @@ export type TeamType = Prisma.TeamGetPayload<{
 }>;
 
 export type ProjectType = Prisma.ProjectGetPayload<{
-  include: { Column: { include: { Task: true } } };
+  include: {
+    Column: { include: { Task: true } };
+    ProjectMember: {
+      include: { user: { include: { UserInformation: true } } };
+    };
+  };
+}>;
+
+export type ProjectMembersToInvite = Prisma.TeamMemberGetPayload<{
+  include: { user: { include: { UserInformation: true } } };
 }>;
 
 export type ColumnType = Prisma.ColumnGetPayload<{

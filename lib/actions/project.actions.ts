@@ -1,6 +1,6 @@
 "use server";
 
-import type { Project } from "@prisma/client";
+import type { $Enums, Project } from "@prisma/client";
 import { SMTH_WENT_WRONG } from "../constants";
 import type {
   newProjectSchemaType,
@@ -45,24 +45,16 @@ export const getTeamProjectsByTeamPid = async (
   teamPid: string
 ): Promise<SuccessAndMessageType & { projects: Project[] }> => {
   try {
-    const { user, role } = await verifyTeamAccessByTeamPidOrThrow(teamPid);
+    const { user } = await verifyTeamAccessByTeamPidOrThrow(teamPid);
 
     let projects: Project[] = [];
 
-    if (role === "ADMIN") {
-      projects = await prisma.project.findMany({
-        where: {
-          team: { teamPid },
-        },
-      });
-    } else if (role === "USER") {
-      projects = await prisma.project.findMany({
-        where: {
-          team: { teamPid },
-          ProjectMember: { some: { userId: user.id } },
-        },
-      });
-    }
+    projects = await prisma.project.findMany({
+      where: {
+        team: { teamPid },
+        ProjectMember: { some: { userId: user.id } },
+      },
+    });
 
     return { success: true, message: "Team projects fetched", projects };
   } catch (error) {
@@ -76,20 +68,36 @@ export const getProjectByProjectPid = async (
 ): Promise<
   SuccessAndMessageType & {
     project: ProjectType | null;
+    role: $Enums.ProjectRole | null;
   }
 > => {
-  await verifyProjectAccessByProjectPidOrThrow(projectPid);
   try {
+    const { role } = await verifyProjectAccessByProjectPidOrThrow(projectPid);
     const project = await prisma.project.findUnique({
       where: { projectPid },
-      include: { Column: { include: { Task: true } } },
+      include: {
+        Column: { include: { Task: true } },
+        ProjectMember: {
+          include: { user: { include: { UserInformation: true } } },
+        },
+      },
     });
     if (!project)
-      return { success: false, message: "Project not found", project: null };
-    return { success: true, message: "Project fetched", project };
+      return {
+        success: false,
+        message: "Project not found",
+        project: null,
+        role: null,
+      };
+    return { success: true, message: "Project fetched", project, role };
   } catch (error) {
     console.log("Get project by project pid error: ", error);
-    return { success: false, message: SMTH_WENT_WRONG, project: null };
+    return {
+      success: false,
+      message: SMTH_WENT_WRONG,
+      project: null,
+      role: null,
+    };
   }
 };
 
@@ -106,3 +114,37 @@ export const editProjectTitle = async (
 };
 
 export const deleteProject = async ({}) => {};
+
+export const getTeamMembersByProjectPid = async (projectPid: string) => {
+  const { project } = await verifyProjectAccessByProjectPidOrThrow(projectPid);
+  const teamPid = project.teamPid;
+  const team = await prisma.team.findUnique({
+    where: { teamPid },
+    include: {
+      TeamMembers: {
+        include: { user: { include: { UserInformation: true } } },
+      },
+    },
+  });
+  const projectMembers = await prisma.projectMember.findMany({
+    where: { project: { projectPid } },
+  });
+  if (!team) return null;
+  const availableMembers = team.TeamMembers.filter(
+    (tm) => !projectMembers.some((pm) => pm.userId === tm.userId)
+  );
+  return availableMembers;
+};
+
+export const addMemberToProjectByProjectPid = async (
+  projectPid: string,
+  userId: number
+) => {
+  const { role, project } = await verifyProjectAccessByProjectPidOrThrow(
+    projectPid
+  );
+  if (role !== "ADMIN") return;
+  await prisma.projectMember.create({
+    data: { projectId: project.id, userId },
+  });
+};

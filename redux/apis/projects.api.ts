@@ -23,7 +23,7 @@ import type {
   ProjectType,
   SuccessAndMessageType,
 } from "@/lib/types";
-import type { Project } from "@prisma/client";
+import type { $Enums, Project } from "@prisma/client";
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const projectsApi = createApi({
@@ -387,6 +387,7 @@ export const projectsApi = createApi({
     getProjectByProjectPid: builder.query<
       SuccessAndMessageType & {
         project: ProjectType | null;
+        role: $Enums.ProjectRole | null
       },
       { projectPid: string }
     >({

@@ -8,7 +8,7 @@ const RightCard = () => {
   const projectPid = useSearchParams().get("projectPid");
   const { data, isLoading, error, isError } = useGetProjectByProjectPidQuery(
     { projectPid: projectPid ?? "" },
-    { skip: !projectPid, refetchOnMountOrArgChange: true }
+    { skip: !projectPid, refetchOnMountOrArgChange: true,  }
   );
 
   if (isLoading)
@@ -27,14 +27,15 @@ const RightCard = () => {
       </Card>
     );
 
-  if (!data)
+  if (!data || !data.project || !data.role)
     return (
       <Card className="w-full">
         <CardContent className="space-y-4">Choose a project</CardContent>
       </Card>
     );
 
-  const project = data.project!;
-  return <ProjectCard project={project} />;
+  const { project, role } = data;
+
+  return <ProjectCard project={project} role={role} />;
 };
 export default RightCard;

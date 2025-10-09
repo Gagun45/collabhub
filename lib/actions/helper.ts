@@ -17,15 +17,16 @@ export const getAuthUser = async () => {
   }
 };
 
-export const authOnly = async () => {
+export const getAuthUserOrThrow = async () => {
   const user = await getAuthUser();
   if (!user || !user.id) throw new Error("Authorized only");
   return user;
 };
 
-export const verifyProjectAccessByProjectPidOrThrow = async (projectPid: string) => {
-  const user = await getAuthUser();
-  if (!user || !user.id) throw new Error("Unauthorized");
+export const verifyProjectAccessByProjectPidOrThrow = async (
+  projectPid: string
+) => {
+  const user = await getAuthUserOrThrow();
   const project = await prisma.project.findUnique({
     where: { projectPid },
     include: { ProjectMember: true },

@@ -12,7 +12,7 @@ interface Props {
 const LeftCard = ({ teamPid }: Props) => {
   const { data: teamData } = useGetTeamByTeamPidQuery({ teamPid });
   if (!teamData?.team) return null;
-  const team = teamData.team;
+  const { team, role } = teamData;
 
   return (
     <Card className="w-full max-w-128 mx-auto shrink-0 xl:w-80">
@@ -22,7 +22,8 @@ const LeftCard = ({ teamPid }: Props) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 flex flex-col">
-        <div>
+        <div className="flex flex-col">
+          <span>My role: {role}</span>
           <span>Members:</span>
           <div className="flex flex-col">
             {team.TeamMembers.map((tm) => (
@@ -33,7 +34,7 @@ const LeftCard = ({ teamPid }: Props) => {
           </div>
         </div>
         <Projects teamPid={teamPid} />
-        <NewProjectDialog teamPid={teamPid} />
+        {role === "ADMIN" && <NewProjectDialog teamPid={teamPid} />}
       </CardContent>
     </Card>
   );
