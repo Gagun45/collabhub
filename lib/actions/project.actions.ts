@@ -151,7 +151,7 @@ export const addMemberToProjectByProjectPid = async (
   const { role, project } = await verifyProjectAccessByProjectPidOrThrow(
     projectPid
   );
-  if (role !== "ADMIN") return;
+  if (role !== "ADMIN") throw new Error("Forbidden");
   await prisma.projectMember.create({
     data: { projectId: project.id, userId },
   });

@@ -7,6 +7,7 @@ import {
   reorderTwoColumns,
 } from "@/lib/actions/column.actions";
 import {
+  addMemberToProjectByProjectPid,
   createNewProject,
   deleteProject,
   editProjectTitle,
@@ -34,6 +35,23 @@ export const projectsApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ["teamProjects", "project", "membersToInvite"],
   endpoints: (builder) => ({
+    addMemberToProjectByProjectPid: builder.mutation<
+      { success: boolean },
+      { projectPid: string; userId: number }
+    >({
+      queryFn: async ({ projectPid, userId }) => {
+        try {
+          await addMemberToProjectByProjectPid(projectPid, userId);
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: (result, error, { projectPid }) => {
+        if (result?.success) return [{ type: "project", id: projectPid }];
+        return [];
+      },
+    }),
     getTeamMembersToInvite: builder.query<
       {
         members: ProjectMembersToInvite[];
@@ -506,4 +524,5 @@ export const {
   useEditProjectTitleMutation,
   useDeleteProjectMutation,
   useGetTeamMembersToInviteQuery,
+  useAddMemberToProjectByProjectPidMutation,
 } = projectsApi;

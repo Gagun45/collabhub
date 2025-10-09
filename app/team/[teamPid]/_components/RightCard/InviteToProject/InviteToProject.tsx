@@ -1,20 +1,27 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { addMemberToProjectByProjectPid } from "@/lib/actions/project.actions";
-import { useGetTeamMembersToInviteQuery } from "@/redux/apis/projects.api";
+import {
+  useAddMemberToProjectByProjectPidMutation,
+  useGetTeamMembersToInviteQuery,
+} from "@/redux/apis/projects.api";
 
 interface Props {
   projectPid: string;
 }
 
 const InviteToProject = ({ projectPid }: Props) => {
+  const [addMember] = useAddMemberToProjectByProjectPidMutation();
   const onAdd = async (userId: number) => {
-    await addMemberToProjectByProjectPid(projectPid, userId);
+    try {
+      await addMember({ projectPid, userId });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  const { data, isFetching } = useGetTeamMembersToInviteQuery({ projectPid });
-  if (isFetching) return null;
+  const { data } = useGetTeamMembersToInviteQuery({ projectPid });
+
   return (
     <div>
       InviteToProject
