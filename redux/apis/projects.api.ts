@@ -34,8 +34,31 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
+      onQueryStarted: async (
+        { projectPid, userId },
+        { dispatch, queryFulfilled }
+      ) => {
+        const patch = dispatch(
+          projectsApi.util.updateQueryData(
+            "getTeamMembersToInvite",
+            { projectPid },
+            (draft) => {
+              draft.members = draft.members.filter((u) => u.userId !== userId);
+            }
+          )
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
       invalidatesTags: (result, error, { projectPid }) => {
-        if (result?.success) return [{ type: "project", id: projectPid }];
+        if (result?.success)
+          return [
+            { type: "membersToInvite", id: projectPid },
+            { type: "project", id: projectPid },
+          ];
         return [];
       },
     }),
@@ -54,7 +77,7 @@ export const projectsApi = createApi({
         }
       },
       providesTags: (result, error, { projectPid }) => [
-        { type: "project", id: projectPid },
+        { type: "membersToInvite", id: projectPid },
       ],
     }),
 
@@ -70,6 +93,10 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+        "teamProjects",
+      ],
     }),
 
     editProjectTitle: builder.mutation<
@@ -118,7 +145,10 @@ export const projectsApi = createApi({
           patchResults.forEach((patch) => patch.undo());
         }
       },
-      invalidatesTags: ["project", "teamProjects"],
+      invalidatesTags: (result, error, { projectPid }) => [
+        { type: "project", id: projectPid },
+        "teamProjects",
+      ],
     }),
 
     getProjectByProjectPid: builder.query<
@@ -137,10 +167,10 @@ export const projectsApi = createApi({
           return { error: "Unexpected error" };
         }
       },
-      providesTags: (result, error, { projectPid }) =>
-        result?.project
-          ? [{ type: "project", id: projectPid }]
-          : [{ type: "project", id: "list" }],
+      providesTags: (result, error, { projectPid }) => {
+        if (result?.success) return [{ type: "project", id: projectPid }];
+        return [];
+      },
     }),
     getTeamProjectsByTeamPid: builder.query<
       SuccessAndMessageType & { projects: Project[] },
