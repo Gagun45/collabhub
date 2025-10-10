@@ -45,3 +45,9 @@ export type SuccessAndMessageType = {
   success: boolean;
   message: string;
 };
+
+export interface MemberAvatarInterface {
+  userPid: string;
+  avatarUrl: string;
+  username: string;
+}
