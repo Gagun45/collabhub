@@ -14,7 +14,7 @@ interface Props {
 }
 
 const ProjectCard = ({ project, role }: Props) => {
-  const { projectPid } = project;
+  const { projectPid, title } = project;
 
   const memberAvatars: MemberAvatarInterface[] = project.ProjectMember.map(
     (pm) => ({
@@ -31,7 +31,7 @@ const ProjectCard = ({ project, role }: Props) => {
           <span>Project members:</span>
           <MembersAvatars amountToShow={5} memberAvatars={memberAvatars} />
         </div>
-        <InviteToProject projectPid={project.projectPid} />
+        <InviteToProject projectPid={projectPid} projectTitle={title} />
         <div className="flex items-center">
           <EditableProjectTitle
             role={role}

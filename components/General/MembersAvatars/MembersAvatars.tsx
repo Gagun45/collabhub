@@ -1,8 +1,6 @@
 import type { MemberAvatarInterface } from "@/lib/types";
 import MemberAvatar from "./MemberAvatar/MemberAvatar";
 
-
-
 interface Props {
   memberAvatars: MemberAvatarInterface[];
   amountToShow: number;
@@ -11,7 +9,7 @@ interface Props {
 const MembersAvatars = ({ memberAvatars, amountToShow }: Props) => {
   const totalAmount = memberAvatars.length;
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-2">
       <div className="flex items-center -space-x-3">
         {memberAvatars.slice(0, amountToShow).map((ma) => (
           <MemberAvatar
@@ -20,10 +18,10 @@ const MembersAvatars = ({ memberAvatars, amountToShow }: Props) => {
             username={ma.username}
           />
         ))}
+        {totalAmount > amountToShow && (
+          <span className="ml-3">+{totalAmount - amountToShow}</span>
+        )}
       </div>
-      {totalAmount > amountToShow && (
-        <span className="">+{totalAmount - amountToShow}</span>
-      )}
     </div>
   );
 };
