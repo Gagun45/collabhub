@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import type { Prisma } from "@prisma/client";
+import type { $Enums, Prisma } from "@prisma/client";
 import ManageMemberCard from "./ManageMemberCard/ManageMemberCard";
 
 interface Props {
@@ -16,9 +16,14 @@ interface Props {
     include: { user: { include: { UserInformation: true } } };
   }>[];
   projectTitle: string;
+  currentUserRole: $Enums.ProjectRole;
 }
 
-const ManageProjectMembers = ({ members, projectTitle }: Props) => {
+const ManageProjectMembers = ({
+  members,
+  projectTitle,
+  currentUserRole,
+}: Props) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -31,7 +36,11 @@ const ManageProjectMembers = ({ members, projectTitle }: Props) => {
         </SheetHeader>
         <SheetBody className="space-y-2">
           {members.map((tm) => (
-            <ManageMemberCard key={tm.userId} member={tm} />
+            <ManageMemberCard
+              key={tm.userId}
+              member={tm}
+              currentUserRole={currentUserRole}
+            />
           ))}
         </SheetBody>
       </SheetContent>

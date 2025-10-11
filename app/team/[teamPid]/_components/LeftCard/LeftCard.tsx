@@ -7,11 +7,12 @@ import Projects from "./Projects/Projects";
 import MembersAvatars from "@/components/General/MembersAvatars/MembersAvatars";
 import type { MemberAvatarInterface } from "@/lib/types";
 import { usePidContext } from "../ProjectPidContext";
+import { isAtLeastProjectAdmin } from "@/lib/utils";
 
 const LeftCard = () => {
   const { teamPid } = usePidContext();
   const { data: teamData } = useGetTeamByTeamPidQuery({ teamPid });
-  if (!teamData?.team) return null;
+  if (!teamData?.team || !teamData.role) return null;
   const { team, role } = teamData;
 
   const memberAvatars: MemberAvatarInterface[] = team.TeamMembers.map((tm) => ({
@@ -24,7 +25,7 @@ const LeftCard = () => {
     <Card className="w-full max-w-128 mx-auto shrink-0 xl:w-80">
       <CardHeader>
         <CardTitle className="tracking-wider mx-auto flex flex-col">
-          Team {team?.name}
+          Team {team.name}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 flex flex-col">
@@ -36,7 +37,7 @@ const LeftCard = () => {
           </div>
         </div>
         <Projects />
-        {role === "ADMIN" && <NewProjectDialog />}
+        {isAtLeastProjectAdmin(role) && <NewProjectDialog />}
       </CardContent>
     </Card>
   );

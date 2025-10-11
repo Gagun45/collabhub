@@ -13,14 +13,16 @@ import {
 } from "./helper";
 import { prisma } from "../prisma";
 import { nanoid } from "nanoid";
+import { isAtLeastProjectAdmin, isAtLeastTeamAdmin } from "../utils";
 
 export const createNewProject = async (
   teamPid: string,
   values: newProjectSchemaType
 ): Promise<SuccessAndMessageType> => {
   try {
-    const { user } = await verifyTeamAccessByTeamPidOrThrow(teamPid);
+    const { user, role } = await verifyTeamAccessByTeamPidOrThrow(teamPid);
     const { title } = values;
+    if (!isAtLeastTeamAdmin(role)) throw new Error("Forbidden");
     await prisma.$transaction(async (tx) => {
       const project = await tx.project.create({
         data: {
@@ -106,7 +108,7 @@ export const editProjectTitle = async (
 ) => {
   if (!newProjectTitle) return;
   const { role } = await verifyProjectAccessByProjectPidOrThrow(projectPid);
-  if (role !== "ADMIN") return;
+  if (!isAtLeastProjectAdmin(role)) return;
   await prisma.project.update({
     where: { projectPid },
     data: { title: newProjectTitle },
@@ -117,7 +119,7 @@ export const deleteProject = async (
   projectPid: string
 ): Promise<SuccessAndMessageType> => {
   const { role } = await verifyProjectAccessByProjectPidOrThrow(projectPid);
-  if (role !== "ADMIN") throw new Error("Forbidden");
+  if (!isAtLeastProjectAdmin(role)) throw new Error("Forbidden");
   await prisma.project.delete({ where: { projectPid } });
   return { message: "Project deleted", success: true };
 };
@@ -150,7 +152,7 @@ export const addMemberToProjectByProjectPid = async (
   const { role, project } = await verifyProjectAccessByProjectPidOrThrow(
     projectPid
   );
-  if (role !== "ADMIN") throw new Error("Forbidden");
+  if (!isAtLeastProjectAdmin(role)) throw new Error("Forbidden");
   await prisma.projectMember.create({
     data: { projectId: project.id, userId },
   });
@@ -163,8 +165,7 @@ export const deleteMemberFromProject = async (
   const { role, project } = await verifyProjectAccessByProjectPidOrThrow(
     projectPid
   );
-  if (PROJECT_ROLE_HIERARCHY[role] < PROJECT_ROLE_HIERARCHY["ADMIN"])
-    throw new Error("Forbidden");
+  if (!isAtLeastProjectAdmin(role)) throw new Error("Forbidden");
   await prisma.$transaction(async (tx) => {
     const member = await tx.projectMember.findUniqueOrThrow({
       where: { projectId_userId: { projectId: project.id, userId } },

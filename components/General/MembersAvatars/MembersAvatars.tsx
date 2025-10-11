@@ -10,26 +10,24 @@ interface Props {
 const MembersAvatars = ({ memberAvatars, amountToShow }: Props) => {
   const totalAmount = memberAvatars.length;
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center -space-x-3">
-        {memberAvatars.slice(0, amountToShow).map((ma) => (
-          <MemberAvatar
-            key={ma.userPid}
-            avatarUrl={ma.avatarUrl}
-            username={ma.username}
-          />
-        ))}
-        {totalAmount > amountToShow && (
-          <Button
-            variant="secondary"
-            mode="icon"
-            shape="circle"
-            className="relative ml-3 size-10 border-2 border-background hover:z-10 bg-slate-400"
-          >
-            +{totalAmount - amountToShow}
-          </Button>
-        )}
-      </div>
+    <div className="flex items-center -space-x-2">
+      {memberAvatars.slice(0, amountToShow).map((ma) => (
+        <MemberAvatar
+          key={ma.userPid}
+          avatarUrl={ma.avatarUrl}
+          username={ma.username}
+        />
+      ))}
+      {totalAmount > amountToShow && (
+        <Button
+          variant="foreground"
+          mode="icon"
+          shape="circle"
+          className="relative size-10 border-2 border-background hover:z-10 bg-slate-400"
+        >
+          +{totalAmount - amountToShow}
+        </Button>
+      )}
     </div>
   );
 };

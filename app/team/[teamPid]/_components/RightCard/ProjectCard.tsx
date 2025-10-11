@@ -8,6 +8,7 @@ import EditableProjectTitle from "./EditableProjectTitle/EditableProjectTitle";
 import MembersAvatars from "@/components/General/MembersAvatars/MembersAvatars";
 import AddMembersToProject from "./AddMembersToProject/AddMembersToProject";
 import ManageProjectMembers from "./ManageProjectMembers/ManageProjectMembers";
+import { isAtLeastProjectAdmin } from "@/lib/utils";
 
 interface Props {
   project: ProjectType;
@@ -30,13 +31,15 @@ const ProjectCard = ({ project, role }: Props) => {
       <CardContent className="space-y-4">
         <div className="flex items-center gap-2">
           <span>Project members:</span>
-          <MembersAvatars amountToShow={1} memberAvatars={memberAvatars} />
-          {role === "ADMIN" && (
+          <MembersAvatars amountToShow={2} memberAvatars={memberAvatars} />
+
+          {isAtLeastProjectAdmin(role) && (
             <>
               <AddMembersToProject projectTitle={title} />
               <ManageProjectMembers
                 members={project.ProjectMember}
                 projectTitle={title}
+                currentUserRole={role}
               />
             </>
           )}
@@ -44,7 +47,7 @@ const ProjectCard = ({ project, role }: Props) => {
         <div className="flex items-center">
           <EditableProjectTitle role={role} projectTitle={project.title} />
 
-          {role === "ADMIN" && <DeleteProjectBtn />}
+          {isAtLeastProjectAdmin(role) && <DeleteProjectBtn />}
         </div>
         <AddColumnBtn />
         <Board />

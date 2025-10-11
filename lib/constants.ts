@@ -8,3 +8,9 @@ export const PROJECT_ROLE_HIERARCHY: Record<$Enums.ProjectRole, number> = {
   ADMIN: 2,
   USER: 1,
 };
+
+export const TEAM_ROLE_HIERARCHY: Record<$Enums.TeamRole, number> = {
+  SUPERADMIN: 3,
+  ADMIN: 2,
+  USER: 1,
+};
