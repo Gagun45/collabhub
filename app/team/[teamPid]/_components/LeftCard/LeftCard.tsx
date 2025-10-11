@@ -6,12 +6,10 @@ import NewProjectDialog from "./NewProjectDialog/NewProjectDialog";
 import Projects from "./Projects/Projects";
 import MembersAvatars from "@/components/General/MembersAvatars/MembersAvatars";
 import type { MemberAvatarInterface } from "@/lib/types";
+import { usePidContext } from "../ProjectPidContext";
 
-interface Props {
-  teamPid: string;
-}
-
-const LeftCard = ({ teamPid }: Props) => {
+const LeftCard = () => {
+  const { teamPid } = usePidContext();
   const { data: teamData } = useGetTeamByTeamPidQuery({ teamPid });
   if (!teamData?.team) return null;
   const { team, role } = teamData;
@@ -37,8 +35,8 @@ const LeftCard = ({ teamPid }: Props) => {
             <MembersAvatars amountToShow={5} memberAvatars={memberAvatars} />
           </div>
         </div>
-        <Projects teamPid={teamPid} />
-        {role === "ADMIN" && <NewProjectDialog teamPid={teamPid} />}
+        <Projects />
+        {role === "ADMIN" && <NewProjectDialog />}
       </CardContent>
     </Card>
   );

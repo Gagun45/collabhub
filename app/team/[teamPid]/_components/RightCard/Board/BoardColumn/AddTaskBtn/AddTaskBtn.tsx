@@ -2,14 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCreateNewTaskMutation } from "@/redux/apis/kanban.api";
 import { useState } from "react";
-import { useProjectPid } from "../../../../ProjectPidContext";
+import { usePidContext } from "../../../../ProjectPidContext";
 
 interface Props {
   columnPid: string;
 }
 
 const AddTaskBtn = ({ columnPid }: Props) => {
-  const projectPid = useProjectPid();
+  const { projectPid } = usePidContext();
   const [newTask, setNewTask] = useState("");
   const [createTask] = useCreateNewTaskMutation();
   const onAddNewTask = async () => {

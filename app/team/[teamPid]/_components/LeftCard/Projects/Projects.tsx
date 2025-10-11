@@ -1,17 +1,14 @@
 import LoadingIndicator from "@/components/General/LoadingIndicator";
 import { useGetTeamProjectsByTeamPidQuery } from "@/redux/apis/projects.api";
 import ProjectLink from "./ProjectLink/ProjectLink";
-import { useSearchParams } from "next/navigation";
+import { usePidContext } from "../../ProjectPidContext";
 
-interface Props {
-  teamPid: string;
-}
 
-const Projects = ({ teamPid }: Props) => {
+const Projects = () => {
+  const {teamPid} = usePidContext()
   const { data: projectsData, isLoading } = useGetTeamProjectsByTeamPidQuery({
     teamPid,
   });
-  const activeProjectPid = useSearchParams().get("projectPid");
   if (isLoading) return <LoadingIndicator/>;
   const { projects } = projectsData!;
   return (
@@ -21,7 +18,6 @@ const Projects = ({ teamPid }: Props) => {
         <ProjectLink
           key={project.id}
           project={project}
-          activeProjectPid={activeProjectPid}
         />
       ))}
     </div>

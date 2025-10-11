@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { useDeleteProjectMutation } from "@/redux/apis/projects.api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useProjectPid } from "../../ProjectPidContext";
+import { usePidContext } from "../../ProjectPidContext";
 
 const DeleteProjectBtn = () => {
-  const projectPid = useProjectPid();
+  const { projectPid } = usePidContext();
   const [deleteProject] = useDeleteProjectMutation();
   const router = useRouter();
   const onDeleteProject = async () => {

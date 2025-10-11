@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { useEditColumnTitleMutation } from "@/redux/apis/kanban.api";
 import { useState } from "react";
-import { useProjectPid } from "../../../../ProjectPidContext";
+import { usePidContext } from "../../../../ProjectPidContext";
 
 interface Props {
   columnTitle: string;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 const EditableColumnTitle = ({ columnTitle, columnPid }: Props) => {
-  const projectPid = useProjectPid();
+  const {projectPid} = usePidContext();
   const [editMode, setEditMode] = useState(false);
   const [editColumnTitle] = useEditColumnTitleMutation();
   const [title, setTitle] = useState(columnTitle);

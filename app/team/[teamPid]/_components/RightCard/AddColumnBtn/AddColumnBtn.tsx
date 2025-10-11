@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCreateNewColumnMutation } from "@/redux/apis/kanban.api";
 import { useState } from "react";
-import { useProjectPid } from "../../ProjectPidContext";
+import { usePidContext } from "../../ProjectPidContext";
 
 const AddColumnBtn = () => {
-  const projectPid = useProjectPid();
+  const { projectPid } = usePidContext();
   const [newTitle, setNewTitle] = useState("");
   const [createColumn] = useCreateNewColumnMutation();
 

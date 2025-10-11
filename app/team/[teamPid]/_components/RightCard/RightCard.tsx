@@ -2,10 +2,10 @@ import LoadingIndicator from "@/components/General/LoadingIndicator";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetProjectByProjectPidQuery } from "@/redux/apis/projects.api";
 import ProjectCard from "./ProjectCard";
-import { useProjectPid } from "../ProjectPidContext";
+import { usePidContext } from "../ProjectPidContext";
 
 const RightCard = () => {
-  const projectPid = useProjectPid();
+  const { projectPid } = usePidContext();
   const { data, isLoading, error, isError } = useGetProjectByProjectPidQuery(
     { projectPid },
     { skip: !projectPid }

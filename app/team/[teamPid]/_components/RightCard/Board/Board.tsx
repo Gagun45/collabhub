@@ -22,10 +22,10 @@ import {
   useReorderTwoColumnsMutation,
 } from "@/redux/apis/kanban.api";
 import LoadingIndicator from "@/components/General/LoadingIndicator";
-import { useProjectPid } from "../../ProjectPidContext";
+import { usePidContext } from "../../ProjectPidContext";
 
 const Board = () => {
-  const projectPid = useProjectPid();
+  const { projectPid } = usePidContext();
   const { data: board, isLoading: BoardIsLoading } = useGetKanbanBoardQuery({
     projectPid,
   });

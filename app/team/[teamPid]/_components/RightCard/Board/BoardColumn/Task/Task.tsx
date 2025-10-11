@@ -9,14 +9,14 @@ import {
   useDeleteTaskMutation,
   useEditTaskTitleMutation,
 } from "@/redux/apis/kanban.api";
-import { useProjectPid } from "../../../../ProjectPidContext";
+import { usePidContext } from "../../../../ProjectPidContext";
 
 interface Props {
   task: Task;
 }
 
 const Task = ({ task }: Props) => {
-  const projectPid = useProjectPid();
+  const { projectPid } = usePidContext();
   const { taskPid } = task;
   const [deleteTask] = useDeleteTaskMutation();
   const [editTaskTitle] = useEditTaskTitleMutation();

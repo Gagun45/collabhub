@@ -45,7 +45,6 @@ const ProjectCard = ({ project, role }: Props) => {
           <EditableProjectTitle
             role={role}
             projectTitle={project.title}
-            teamPid={project.teamPid}
           />
 
           {role === "ADMIN" && <DeleteProjectBtn />}

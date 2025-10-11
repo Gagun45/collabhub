@@ -7,7 +7,7 @@ import { MoveHorizontalIcon, TrashIcon } from "lucide-react";
 import { useDeleteColumnMutation } from "@/redux/apis/kanban.api";
 import EditableColumnTitle from "./EditableColumnTitle/EditableColumnTitle";
 import AddTaskBtn from "./AddTaskBtn/AddTaskBtn";
-import { useProjectPid } from "../../../ProjectPidContext";
+import { usePidContext } from "../../../ProjectPidContext";
 
 interface Props {
   column: Column;
@@ -15,7 +15,7 @@ interface Props {
 }
 
 const BoardColumn = ({ column, tasks }: Props) => {
-  const projectPid = useProjectPid();
+  const { projectPid } = usePidContext();
   const { columnPid, title } = column;
 
   const [deleteColumn] = useDeleteColumnMutation();

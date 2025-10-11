@@ -19,8 +19,8 @@ const TeamPageClient = ({ teamPid }: Props) => {
   if (!data?.success || !data.team) return <span>{SMTH_WENT_WRONG}</span>;
   return (
     <div className="flex gap-4 w-full flex-col xl:flex-row">
-      <LeftCard teamPid={teamPid} />
-      <ProjectPidProvider value={projectPid}>
+      <ProjectPidProvider value={{ projectPid, teamPid }}>
+        <LeftCard />
         <RightCard />
       </ProjectPidProvider>
     </div>

@@ -15,12 +15,10 @@ import { useCreateNewProjectMutation } from "@/redux/apis/projects.api";
 import { useDirection } from "@radix-ui/react-direction";
 import { useState } from "react";
 import { toast } from "sonner";
+import { usePidContext } from "../../ProjectPidContext";
 
-interface Props {
-  teamPid: string;
-}
-
-const NewProjectDialog = ({ teamPid }: Props) => {
+const NewProjectDialog = () => {
+  const { teamPid } = usePidContext();
   const direction = useDirection();
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [createProject, { isLoading }] = useCreateNewProjectMutation();

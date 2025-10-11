@@ -2,20 +2,15 @@ import { Input } from "@/components/ui/input";
 import { useEditProjectTitleMutation } from "@/redux/apis/projects.api";
 import type { $Enums } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { useProjectPid } from "../../ProjectPidContext";
+import { usePidContext } from "../../ProjectPidContext";
 
 interface Props {
   role: $Enums.ProjectRole;
   projectTitle: string;
-  teamPid: string;
 }
 
-const EditableProjectTitle = ({
-  projectTitle,
-  role,
-  teamPid,
-}: Props) => {
-  const projectPid = useProjectPid();
+const EditableProjectTitle = ({ projectTitle, role }: Props) => {
+  const { projectPid, teamPid } = usePidContext();
   const [editProjectTitle] = useEditProjectTitleMutation();
   const [editMode, setEditMode] = useState(false);
   const [newTitle, setNewTitle] = useState(projectTitle);

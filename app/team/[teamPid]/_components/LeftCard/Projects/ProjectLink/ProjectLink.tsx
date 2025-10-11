@@ -1,12 +1,13 @@
 import type { Project } from "@prisma/client";
 import Link from "next/link";
+import { usePidContext } from "../../../ProjectPidContext";
 
 interface Props {
   project: Project;
-  activeProjectPid: string | null;
 }
 
-const ProjectLink = ({ project, activeProjectPid }: Props) => {
+const ProjectLink = ({ project }: Props) => {
+  const { projectPid: activeProjectPid } = usePidContext();
   const isActive = project.projectPid === activeProjectPid;
   return (
     <Link
