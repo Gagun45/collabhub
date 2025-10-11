@@ -5,13 +5,13 @@ import { toast } from "sonner";
 import { usePidContext } from "../../ProjectPidContext";
 
 const DeleteProjectBtn = () => {
-  const { projectPid } = usePidContext();
+  const { projectPid, teamPid } = usePidContext();
   const [deleteProject] = useDeleteProjectMutation();
   const router = useRouter();
   const onDeleteProject = async () => {
     try {
       await deleteProject({ projectPid }).unwrap();
-      router.push("/my-teams");
+      router.push(`/team/${teamPid}`);
     } catch {
       toast.error("Something went wrong");
     }

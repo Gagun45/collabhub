@@ -96,10 +96,7 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
-      invalidatesTags: (result, error, { projectPid }) => [
-        { type: "project", id: projectPid },
-        "teamProjects",
-      ],
+      invalidatesTags: ["teamProjects"],
     }),
 
     editProjectTitle: builder.mutation<

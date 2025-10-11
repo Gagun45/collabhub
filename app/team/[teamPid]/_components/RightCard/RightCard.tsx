@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useGetProjectByProjectPidQuery } from "@/redux/apis/projects.api";
 import ProjectCard from "./ProjectCard";
 import { usePidContext } from "../ProjectPidContext";
+import { UNEXPECTED_ERROR } from "@/lib/constants";
 
 const RightCard = () => {
   const { projectPid } = usePidContext();
@@ -27,10 +28,17 @@ const RightCard = () => {
       </Card>
     );
 
-  if (!data || !data.project || !data.role)
+  if (!projectPid)
     return (
       <Card className="w-full">
         <CardContent className="space-y-4">Choose a project</CardContent>
+      </Card>
+    );
+
+  if (!data || !data.project || !data.role)
+    return (
+      <Card className="w-full">
+        <CardContent className="space-y-4">{UNEXPECTED_ERROR}</CardContent>
       </Card>
     );
 
