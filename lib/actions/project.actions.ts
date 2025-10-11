@@ -155,3 +155,24 @@ export const addMemberToProjectByProjectPid = async (
     data: { projectId: project.id, userId },
   });
 };
+
+export const deleteMemberFromProject = async (
+  projectPid: string,
+  userId: number
+) => {
+  const { role, project } = await verifyProjectAccessByProjectPidOrThrow(
+    projectPid
+  );
+  if (role !== "ADMIN") throw new Error("Forbidden");
+  await prisma.$transaction(async (tx) => {
+    const member = await tx.projectMember.findUnique({
+      where: { projectId_userId: { projectId: project.id, userId } },
+    });
+    if (member?.role === "ADMIN") throw new Error("Denied");
+    await tx.projectMember.delete({
+      where: {
+        projectId_userId: { projectId: project.id, userId },
+      },
+    });
+  });
+};

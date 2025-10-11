@@ -1,7 +1,10 @@
+import LoadingIndicator from "@/components/General/LoadingIndicator";
 import { Button } from "@/components/ui/button";
+import { UNEXPECTED_ERROR } from "@/lib/constants";
 import { useAddMemberToProjectByProjectPidMutation } from "@/redux/apis/projects.api";
-import { CheckIcon, PlusCircleIcon } from "lucide-react";
+import { PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface Props {
   projectPid: string;
@@ -11,12 +14,13 @@ interface Props {
 
 const AddMemberCard = ({ projectPid, userId, username }: Props) => {
   const [addMember] = useAddMemberToProjectByProjectPidMutation();
-  const [invited, setInvited] = useState(false);
+  const [loading, setLoading] = useState(false);
   const onAdd = async (userId: number) => {
     try {
-      await addMember({ projectPid, userId });
-    } catch (e) {
-      console.log(e);
+      await addMember({ projectPid, userId }).unwrap();
+    } catch {
+      toast.error(UNEXPECTED_ERROR);
+      setLoading(false);
     }
   };
   return (
@@ -24,15 +28,15 @@ const AddMemberCard = ({ projectPid, userId, username }: Props) => {
       <span>{username}</span>
       <Button
         variant={"inverse"}
-        disabled={invited}
+        disabled={loading}
         onClick={() => {
-          setInvited(true);
+          setLoading(true);
           onAdd(userId);
         }}
         className="shrink-0 ml-auto"
       >
-        {invited ? (
-          <CheckIcon className="size-7" />
+        {loading ? (
+          <LoadingIndicator className="size-7" />
         ) : (
           <PlusCircleIcon className="size-7" />
         )}

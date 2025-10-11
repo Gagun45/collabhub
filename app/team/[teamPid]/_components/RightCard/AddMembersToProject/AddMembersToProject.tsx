@@ -10,9 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  useGetTeamMembersToInviteQuery,
-} from "@/redux/apis/projects.api";
+import { useGetTeamMembersToInviteQuery } from "@/redux/apis/projects.api";
 import AddMemberCard from "./AddMemberCard/AddMemberCard";
 
 interface Props {
@@ -22,8 +20,6 @@ interface Props {
 
 const AddMembersToProject = ({ projectPid, projectTitle }: Props) => {
   const { data } = useGetTeamMembersToInviteQuery({ projectPid });
-
-  if (!data) return null;
 
   return (
     <Sheet>
@@ -36,9 +32,10 @@ const AddMembersToProject = ({ projectPid, projectTitle }: Props) => {
           <SheetDescription>Adding members</SheetDescription>
         </SheetHeader>
         <SheetBody className="space-y-2">
-          {data.members.length === 0 && <span>Everyone already added</span>}
-          {data.members.length > 0 &&
-            data.members.map((tm) => (
+          {data?.members.length === 0 && <span>Everyone already added</span>}
+          {data?.members &&
+            data?.members.length > 0 &&
+            data?.members.map((tm) => (
               <AddMemberCard
                 projectPid={projectPid}
                 userId={tm.userId}

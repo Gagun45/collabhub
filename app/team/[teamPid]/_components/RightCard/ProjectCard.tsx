@@ -32,8 +32,16 @@ const ProjectCard = ({ project, role }: Props) => {
           <span>Project members:</span>
           <MembersAvatars amountToShow={5} memberAvatars={memberAvatars} />
         </div>
-        <AddMembersToProject projectPid={projectPid} projectTitle={title} />
-        <ManageProjectMembers />
+        {role === "ADMIN" && (
+          <>
+            <AddMembersToProject projectPid={projectPid} projectTitle={title} />
+            <ManageProjectMembers
+              members={project.ProjectMember}
+              projectTitle={title}
+              projectPid={projectPid}
+            />
+          </>
+        )}
         <div className="flex items-center">
           <EditableProjectTitle
             role={role}
