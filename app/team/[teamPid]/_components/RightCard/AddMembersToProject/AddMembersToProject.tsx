@@ -12,13 +12,14 @@ import {
 } from "@/components/ui/sheet";
 import { useGetTeamMembersToInviteQuery } from "@/redux/apis/projects.api";
 import AddMemberCard from "./AddMemberCard/AddMemberCard";
+import { useProjectPid } from "../../ProjectPidContext";
 
 interface Props {
-  projectPid: string;
   projectTitle: string;
 }
 
-const AddMembersToProject = ({ projectPid, projectTitle }: Props) => {
+const AddMembersToProject = ({ projectTitle }: Props) => {
+  const projectPid = useProjectPid();
   const { data } = useGetTeamMembersToInviteQuery({ projectPid });
 
   return (
@@ -37,7 +38,6 @@ const AddMembersToProject = ({ projectPid, projectTitle }: Props) => {
             data?.members.length > 0 &&
             data?.members.map((tm) => (
               <AddMemberCard
-                projectPid={projectPid}
                 userId={tm.userId}
                 username={tm.user.UserInformation?.username ?? ""}
                 key={tm.userId}

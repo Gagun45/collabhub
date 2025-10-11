@@ -4,15 +4,16 @@ import { useDeleteMemberFromProjectMutation } from "@/redux/apis/projects.api";
 import type { Prisma } from "@prisma/client";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useProjectPid } from "../../../ProjectPidContext";
 
 interface Props {
   member: Prisma.ProjectMemberGetPayload<{
     include: { user: { include: { UserInformation: true } } };
   }>;
-  projectPid: string;
 }
 
-const ManageMemberCard = ({ member, projectPid }: Props) => {
+const ManageMemberCard = ({ member }: Props) => {
+  const projectPid = useProjectPid();
   const userId = member.userId;
   const isAdmin = member.role === "ADMIN";
   const [loading, setLoading] = useState(false);

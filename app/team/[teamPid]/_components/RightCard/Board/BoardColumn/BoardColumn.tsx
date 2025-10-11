@@ -7,15 +7,16 @@ import { MoveHorizontalIcon, TrashIcon } from "lucide-react";
 import { useDeleteColumnMutation } from "@/redux/apis/kanban.api";
 import EditableColumnTitle from "./EditableColumnTitle/EditableColumnTitle";
 import AddTaskBtn from "./AddTaskBtn/AddTaskBtn";
+import { useProjectPid } from "../../../ProjectPidContext";
 
 interface Props {
   column: Column;
   tasks: TaskType[];
-  projectPid: string;
 }
 
 const BoardColumn = ({ column, tasks }: Props) => {
-  const { columnPid, projectPid, title } = column;
+  const projectPid = useProjectPid();
+  const { columnPid, title } = column;
 
   const [deleteColumn] = useDeleteColumnMutation();
 
@@ -49,11 +50,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
           >
             <MoveHorizontalIcon className="size-4" />
           </Button>
-          <EditableColumnTitle
-            columnPid={columnPid}
-            columnTitle={title}
-            projectPid={projectPid}
-          />
+          <EditableColumnTitle columnPid={columnPid} columnTitle={title} />
           <Button className="size-8 ml-auto" variant={"destructive"}>
             <TrashIcon />
           </Button>
@@ -65,15 +62,11 @@ const BoardColumn = ({ column, tasks }: Props) => {
           )}
           <SortableContext items={tasks.map((t) => t.taskPid)}>
             {tasks.map((task) => (
-              <Task
-                task={task}
-                key={task.taskPid}
-                projectPid={column.projectPid}
-              />
+              <Task task={task} key={task.taskPid} />
             ))}
           </SortableContext>
         </div>
-        <AddTaskBtn columnPid={columnPid} projectPid={projectPid} />
+        <AddTaskBtn columnPid={columnPid} />
       </div>
     );
   return (
@@ -92,11 +85,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
         >
           <MoveHorizontalIcon className="size-4" />
         </Button>
-        <EditableColumnTitle
-          columnPid={columnPid}
-          columnTitle={title}
-          projectPid={projectPid}
-        />
+        <EditableColumnTitle columnPid={columnPid} columnTitle={title} />
 
         <Button
           className="size-8 ml-auto"
@@ -118,15 +107,11 @@ const BoardColumn = ({ column, tasks }: Props) => {
         )}
         <SortableContext items={tasks.map((t) => t.taskPid)}>
           {tasks.map((task) => (
-            <Task
-              task={task}
-              key={task.taskPid}
-              projectPid={column.projectPid}
-            />
+            <Task task={task} key={task.taskPid} />
           ))}
         </SortableContext>
       </div>
-      <AddTaskBtn columnPid={columnPid} projectPid={projectPid} />
+      <AddTaskBtn columnPid={columnPid} />
     </div>
   );
 };

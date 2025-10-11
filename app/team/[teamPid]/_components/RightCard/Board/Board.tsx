@@ -22,34 +22,34 @@ import {
   useReorderTwoColumnsMutation,
 } from "@/redux/apis/kanban.api";
 import LoadingIndicator from "@/components/General/LoadingIndicator";
+import { useProjectPid } from "../../ProjectPidContext";
 
-interface Props {
-  projectPid: string;
-}
-
-const Board = ({ projectPid }: Props) => {
+const Board = () => {
+  const projectPid = useProjectPid();
   const { data: board, isLoading: BoardIsLoading } = useGetKanbanBoardQuery({
     projectPid,
   });
   const [columns, setColumns] = useState<Column[]>([]);
   const [tasks, setTasks] = useState<TaskType[]>([]);
-  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
-  const [activeTask, setActiveTask] = useState<TaskType | null>(null);
   useEffect(() => {
     if (!board) return;
     setColumns(board.columns);
     setTasks(board.tasks);
   }, [board]);
 
+  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [activeTask, setActiveTask] = useState<TaskType | null>(null);
+
   const [reorderCols] = useReorderProjectColumnsMutation();
   const [reorderSingleCol] = useReorderSingleColumnMutation();
   const [reorderTwoCols] = useReorderTwoColumnsMutation();
+
   const sensors = useSensors(
     useSensor(MouseSensor),
     useSensor(KeyboardSensor),
     useSensor(TouchSensor, { activationConstraint: { distance: 5 } })
   );
-
+  if (!board) return null;
   const onDragEnd = (e: DragEndEvent) => {
     setActiveTask(null);
     setActiveColumn(null);
@@ -87,10 +87,10 @@ const Board = ({ projectPid }: Props) => {
             return { ...task, index: index + 1 };
           });
 
-          setTasks(updated);
           const affectedTasksPids = updated
             .filter((t) => t.columnPid === toColumnPid)
             .map((t) => t.taskPid);
+          setTasks(updated);
           reorderSingleCol({
             columnPid: toColumnPid,
             projectPid,
@@ -115,13 +115,13 @@ const Board = ({ projectPid }: Props) => {
             columnCounters[task.columnPid] = index + 1;
             return { ...task, index: index + 1 };
           });
-          setTasks(updated);
           const fromColumnTaskPids = updated
             .filter((t) => t.columnPid === fromColumnPid)
             .map((t) => t.taskPid);
           const toColumnTaskPids = updated
             .filter((t) => t.columnPid === toColumnPid)
             .map((t) => t.taskPid);
+          setTasks(updated);
           reorderTwoCols({
             fromColumnPid,
             toColumnPid,
@@ -150,13 +150,13 @@ const Board = ({ projectPid }: Props) => {
           columnCounters[task.columnPid] = index + 1;
           return { ...task, index: index + 1 };
         });
-        setTasks(updated);
         const fromColumnTaskPids = updated
           .filter((t) => t.columnPid === fromColumnPid)
           .map((t) => t.taskPid);
         const toColumnTaskPids = updated
           .filter((t) => t.columnPid === toColumnPid)
           .map((t) => t.taskPid);
+        setTasks(updated);
         reorderTwoCols({
           fromColumnPid,
           toColumnPid,
@@ -201,7 +201,6 @@ const Board = ({ projectPid }: Props) => {
                 tasks={tasks
                   .filter((t) => t.columnPid === col.columnPid)
                   .sort((a, b) => b.index - a.index)}
-                projectPid={projectPid}
               />
             ))}
         </SortableContext>
@@ -210,13 +209,12 @@ const Board = ({ projectPid }: Props) => {
             {activeColumn && (
               <BoardColumn
                 column={activeColumn}
-                projectPid={projectPid}
                 tasks={tasks
                   .filter((t) => t.columnPid === activeColumn.columnPid)
                   .sort((a, b) => b.index - a.index)}
               />
             )}
-            {activeTask && <Task task={activeTask} projectPid={projectPid} />}
+            {activeTask && <Task task={activeTask} />}
           </DragOverlay>,
           document.body
         )}

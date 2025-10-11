@@ -16,10 +16,9 @@ interface Props {
     include: { user: { include: { UserInformation: true } } };
   }>[];
   projectTitle: string;
-  projectPid: string;
 }
 
-const ManageProjectMembers = ({ members, projectTitle, projectPid }: Props) => {
+const ManageProjectMembers = ({ members, projectTitle }: Props) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -32,11 +31,7 @@ const ManageProjectMembers = ({ members, projectTitle, projectPid }: Props) => {
         </SheetHeader>
         <SheetBody className="space-y-2">
           {members.map((tm) => (
-            <ManageMemberCard
-              key={tm.userId}
-              member={tm}
-              projectPid={projectPid}
-            />
+            <ManageMemberCard key={tm.userId} member={tm} />
           ))}
         </SheetBody>
       </SheetContent>

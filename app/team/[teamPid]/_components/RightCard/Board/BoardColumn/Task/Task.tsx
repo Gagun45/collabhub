@@ -5,14 +5,18 @@ import type { Task } from "@prisma/client";
 import { MoveIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useDeleteTaskMutation, useEditTaskTitleMutation } from "@/redux/apis/kanban.api";
+import {
+  useDeleteTaskMutation,
+  useEditTaskTitleMutation,
+} from "@/redux/apis/kanban.api";
+import { useProjectPid } from "../../../../ProjectPidContext";
 
 interface Props {
   task: Task;
-  projectPid: string;
 }
 
-const Task = ({ task, projectPid }: Props) => {
+const Task = ({ task }: Props) => {
+  const projectPid = useProjectPid();
   const { taskPid } = task;
   const [deleteTask] = useDeleteTaskMutation();
   const [editTaskTitle] = useEditTaskTitleMutation();
@@ -71,10 +75,7 @@ const Task = ({ task, projectPid }: Props) => {
           </span>
         )}
 
-        <Button
-          className="size-6 ml-auto"
-          variant={"destructive"}
-        >
+        <Button className="size-6 ml-auto" variant={"destructive"}>
           <TrashIcon className="size-4" />
         </Button>
       </div>

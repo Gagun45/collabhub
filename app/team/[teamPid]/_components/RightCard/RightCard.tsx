@@ -1,13 +1,13 @@
 import LoadingIndicator from "@/components/General/LoadingIndicator";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetProjectByProjectPidQuery } from "@/redux/apis/projects.api";
-import { useSearchParams } from "next/navigation";
 import ProjectCard from "./ProjectCard";
+import { useProjectPid } from "../ProjectPidContext";
 
 const RightCard = () => {
-  const projectPid = useSearchParams().get("projectPid");
+  const projectPid = useProjectPid();
   const { data, isLoading, error, isError } = useGetProjectByProjectPidQuery(
-    { projectPid: projectPid ?? "" },
+    { projectPid },
     { skip: !projectPid }
   );
 
@@ -35,7 +35,6 @@ const RightCard = () => {
     );
 
   const { project, role } = data;
-
 
   return <ProjectCard project={project} role={role} />;
 };

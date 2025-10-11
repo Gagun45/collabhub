@@ -5,14 +5,15 @@ import { useAddMemberToProjectByProjectPidMutation } from "@/redux/apis/projects
 import { PlusCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useProjectPid } from "../../../ProjectPidContext";
 
 interface Props {
-  projectPid: string;
   username: string;
   userId: number;
 }
 
-const AddMemberCard = ({ projectPid, userId, username }: Props) => {
+const AddMemberCard = ({ userId, username }: Props) => {
+  const projectPid = useProjectPid();
   const [addMember] = useAddMemberToProjectByProjectPidMutation();
   const [loading, setLoading] = useState(false);
   const onAdd = async (userId: number) => {

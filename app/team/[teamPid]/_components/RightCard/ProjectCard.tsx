@@ -15,7 +15,7 @@ interface Props {
 }
 
 const ProjectCard = ({ project, role }: Props) => {
-  const { projectPid, title } = project;
+  const { title } = project;
 
   const memberAvatars: MemberAvatarInterface[] = project.ProjectMember.map(
     (pm) => ({
@@ -34,26 +34,24 @@ const ProjectCard = ({ project, role }: Props) => {
         </div>
         {role === "ADMIN" && (
           <>
-            <AddMembersToProject projectPid={projectPid} projectTitle={title} />
+            <AddMembersToProject projectTitle={title} />
             <ManageProjectMembers
               members={project.ProjectMember}
               projectTitle={title}
-              projectPid={projectPid}
             />
           </>
         )}
         <div className="flex items-center">
           <EditableProjectTitle
             role={role}
-            projectPid={projectPid}
             projectTitle={project.title}
             teamPid={project.teamPid}
           />
 
-          {role === "ADMIN" && <DeleteProjectBtn projectPid={projectPid} />}
+          {role === "ADMIN" && <DeleteProjectBtn />}
         </div>
-        <AddColumnBtn projectPid={projectPid} />
-        <Board projectPid={projectPid} />
+        <AddColumnBtn />
+        <Board />
       </CardContent>
     </Card>
   );
