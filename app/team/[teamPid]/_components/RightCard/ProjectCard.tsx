@@ -3,10 +3,11 @@ import type { MemberAvatarInterface, ProjectType } from "@/lib/types";
 import AddColumnBtn from "./AddColumnBtn/AddColumnBtn";
 import Board from "./Board/Board";
 import type { $Enums } from "@prisma/client";
-import InviteToProject from "./InviteToProject/InviteToProject";
 import DeleteProjectBtn from "./DeleteProjectBtn/DeleteProjectBtn";
 import EditableProjectTitle from "./EditableProjectTitle/EditableProjectTitle";
 import MembersAvatars from "@/components/General/MembersAvatars/MembersAvatars";
+import AddMembersToProject from "./AddMembersToProject/AddMembersToProject";
+import ManageProjectMembers from "./ManageProjectMembers/ManageProjectMembers";
 
 interface Props {
   project: ProjectType;
@@ -31,7 +32,8 @@ const ProjectCard = ({ project, role }: Props) => {
           <span>Project members:</span>
           <MembersAvatars amountToShow={5} memberAvatars={memberAvatars} />
         </div>
-        <InviteToProject projectPid={projectPid} projectTitle={title} />
+        <AddMembersToProject projectPid={projectPid} projectTitle={title} />
+        <ManageProjectMembers />
         <div className="flex items-center">
           <EditableProjectTitle
             role={role}

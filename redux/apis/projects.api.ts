@@ -34,25 +34,6 @@ export const projectsApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
-      onQueryStarted: async (
-        { projectPid, userId },
-        { dispatch, queryFulfilled }
-      ) => {
-        const patch = dispatch(
-          projectsApi.util.updateQueryData(
-            "getTeamMembersToInvite",
-            { projectPid },
-            (draft) => {
-              draft.members = draft.members.filter((u) => u.userId !== userId);
-            }
-          )
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patch.undo();
-        }
-      },
       invalidatesTags: (result, error, { projectPid }) => {
         if (result?.success)
           return [
