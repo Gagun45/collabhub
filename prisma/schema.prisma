@@ -14,11 +14,13 @@ datasource db {
 }
 
 enum TeamRole {
+  SUPERADMIN
   ADMIN
   USER
 }
 
 enum ProjectRole {
+  SUPERADMIN
   ADMIN
   USER
 }

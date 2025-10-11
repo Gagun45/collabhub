@@ -1,5 +1,6 @@
 import type { MemberAvatarInterface } from "@/lib/types";
 import MemberAvatar from "./MemberAvatar/MemberAvatar";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   memberAvatars: MemberAvatarInterface[];
@@ -19,7 +20,14 @@ const MembersAvatars = ({ memberAvatars, amountToShow }: Props) => {
           />
         ))}
         {totalAmount > amountToShow && (
-          <span className="ml-3">+{totalAmount - amountToShow}</span>
+          <Button
+            variant="secondary"
+            mode="icon"
+            shape="circle"
+            className="relative ml-3 size-10 border-2 border-background hover:z-10 bg-slate-400"
+          >
+            +{totalAmount - amountToShow}
+          </Button>
         )}
       </div>
     </div>

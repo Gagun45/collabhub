@@ -30,22 +30,19 @@ const ProjectCard = ({ project, role }: Props) => {
       <CardContent className="space-y-4">
         <div className="flex items-center gap-2">
           <span>Project members:</span>
-          <MembersAvatars amountToShow={5} memberAvatars={memberAvatars} />
+          <MembersAvatars amountToShow={1} memberAvatars={memberAvatars} />
+          {role === "ADMIN" && (
+            <>
+              <AddMembersToProject projectTitle={title} />
+              <ManageProjectMembers
+                members={project.ProjectMember}
+                projectTitle={title}
+              />
+            </>
+          )}
         </div>
-        {role === "ADMIN" && (
-          <>
-            <AddMembersToProject projectTitle={title} />
-            <ManageProjectMembers
-              members={project.ProjectMember}
-              projectTitle={title}
-            />
-          </>
-        )}
         <div className="flex items-center">
-          <EditableProjectTitle
-            role={role}
-            projectTitle={project.title}
-          />
+          <EditableProjectTitle role={role} projectTitle={project.title} />
 
           {role === "ADMIN" && <DeleteProjectBtn />}
         </div>

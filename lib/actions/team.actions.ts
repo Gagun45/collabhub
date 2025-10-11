@@ -28,7 +28,7 @@ export const createNewTeam = async (
         data: { name, teamPid: nanoid(5), creatorId: user.id },
       });
       await tx.teamMember.create({
-        data: { teamId: team.id, userId: user.id, role: "ADMIN" },
+        data: { teamId: team.id, userId: user.id, role: "SUPERADMIN" },
       });
       return { success: true, message: "Team created" };
     });

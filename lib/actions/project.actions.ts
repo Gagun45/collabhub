@@ -1,7 +1,7 @@
 "use server";
 
 import type { $Enums, Project } from "@prisma/client";
-import { SMTH_WENT_WRONG } from "../constants";
+import { PROJECT_ROLE_HIERARCHY, SMTH_WENT_WRONG } from "../constants";
 import type {
   newProjectSchemaType,
   ProjectType,
@@ -31,7 +31,7 @@ export const createNewProject = async (
         },
       });
       await tx.projectMember.create({
-        data: { projectId: project.id, userId: user.id, role: "ADMIN" },
+        data: { projectId: project.id, userId: user.id, role: "SUPERADMIN" },
       });
     });
     return { success: true, message: "Project created" };
@@ -163,12 +163,15 @@ export const deleteMemberFromProject = async (
   const { role, project } = await verifyProjectAccessByProjectPidOrThrow(
     projectPid
   );
-  if (role !== "ADMIN") throw new Error("Forbidden");
+  if (PROJECT_ROLE_HIERARCHY[role] < PROJECT_ROLE_HIERARCHY["ADMIN"])
+    throw new Error("Forbidden");
   await prisma.$transaction(async (tx) => {
-    const member = await tx.projectMember.findUnique({
+    const member = await tx.projectMember.findUniqueOrThrow({
       where: { projectId_userId: { projectId: project.id, userId } },
     });
-    if (member?.role === "ADMIN") throw new Error("Denied");
+    if (member.role === "SUPERADMIN") throw new Error("Denied");
+    if (PROJECT_ROLE_HIERARCHY[role] < PROJECT_ROLE_HIERARCHY[member.role])
+      throw new Error("Denied");
     await tx.projectMember.delete({
       where: {
         projectId_userId: { projectId: project.id, userId },
