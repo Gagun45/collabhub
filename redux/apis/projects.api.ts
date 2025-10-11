@@ -3,6 +3,7 @@ import {
   createNewProject,
   deleteMemberFromProject,
   deleteProject,
+  editProjectMemberRole,
   editProjectTitle,
   getProjectByProjectPid,
   getTeamMembersToInvite,
@@ -23,6 +24,23 @@ export const projectsApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ["teamProjects", "project", "membersToInvite"],
   endpoints: (builder) => ({
+    editProjectMemberRole: builder.mutation<
+      { success: boolean },
+      { projectPid: string; userId: number; newMemberRole: $Enums.ProjectRole }
+    >({
+      queryFn: async ({ projectPid, userId, newMemberRole }) => {
+        try {
+          await editProjectMemberRole(projectPid, userId, newMemberRole);
+          return { data: { success: true } };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: (result, error, { projectPid }) => {
+        if (result?.success) return [{ type: "project", id: projectPid }];
+        return [];
+      },
+    }),
     deleteMemberFromProject: builder.mutation<
       { success: boolean },
       { projectPid: string; userId: number }
@@ -214,4 +232,5 @@ export const {
   useGetTeamMembersToInviteQuery,
   useAddMemberToProjectByProjectPidMutation,
   useDeleteMemberFromProjectMutation,
+  useEditProjectMemberRoleMutation,
 } = projectsApi;

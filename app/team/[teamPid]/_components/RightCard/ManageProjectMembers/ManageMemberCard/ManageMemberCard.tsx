@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { UNEXPECTED_ERROR } from "@/lib/constants";
+import { PROJECT_ROLE_HIERARCHY, UNEXPECTED_ERROR } from "@/lib/constants";
 import { useDeleteMemberFromProjectMutation } from "@/redux/apis/projects.api";
 import type { $Enums, Prisma } from "@prisma/client";
 import { useState } from "react";
 import { toast } from "sonner";
 import { usePidContext } from "../../../ProjectPidContext";
 import { isBiggerProjectRole } from "@/lib/utils";
+import EditMemberRole from "../EditMemberRole/EditMemberRole";
 
 interface Props {
   member: Prisma.ProjectMemberGetPayload<{
@@ -15,8 +16,12 @@ interface Props {
 }
 
 const ManageMemberCard = ({ member, currentUserRole }: Props) => {
+  const { role: memberRole } = member;
   const { projectPid } = usePidContext();
   const userId = member.userId;
+  const isSuperAdmin =
+    PROJECT_ROLE_HIERARCHY[currentUserRole] ===
+    PROJECT_ROLE_HIERARCHY.SUPERADMIN;
   const [loading, setLoading] = useState(false);
   const [removeMember] = useDeleteMemberFromProjectMutation();
   const username = member.user.UserInformation?.username ?? "";
@@ -30,8 +35,13 @@ const ManageMemberCard = ({ member, currentUserRole }: Props) => {
   };
   return (
     <div className="flex items-center gap-2 border-b-2">
-      <span className="break-all">{username}</span>
-      {isBiggerProjectRole(currentUserRole, member.role) && (
+      <span className="break-all">
+        {username} ({memberRole})
+      </span>
+      {isSuperAdmin && memberRole !== "SUPERADMIN" && (
+        <EditMemberRole memberRole={memberRole} userId={member.userId} />
+      )}
+      {isBiggerProjectRole(currentUserRole, memberRole) && (
         <Button
           variant={"destructive"}
           className="ml-auto"

@@ -1,6 +1,6 @@
 "use server";
 
-import type { $Enums, Project } from "@prisma/client";
+import { $Enums, Project } from "@prisma/client";
 import { PROJECT_ROLE_HIERARCHY, SMTH_WENT_WRONG } from "../constants";
 import type {
   newProjectSchemaType,
@@ -13,7 +13,11 @@ import {
 } from "./helper";
 import { prisma } from "../prisma";
 import { nanoid } from "nanoid";
-import { isAtLeastProjectAdmin, isAtLeastTeamAdmin } from "../utils";
+import {
+  isAtLeastProjectAdmin,
+  isAtLeastTeamAdmin,
+  isBiggerProjectRole,
+} from "../utils";
 
 export const createNewProject = async (
   teamPid: string,
@@ -178,5 +182,29 @@ export const deleteMemberFromProject = async (
         projectId_userId: { projectId: project.id, userId },
       },
     });
+  });
+};
+
+export const editProjectMemberRole = async (
+  projectPid: string,
+  userId: number,
+  newMemberRole: $Enums.ProjectRole
+) => {
+  const allowedMemberRoles: $Enums.ProjectRole[] = ["ADMIN", "USER"];
+  if (!allowedMemberRoles.includes(newMemberRole)) throw new Error("Denied");
+
+  const { role: userRole, project } =
+    await verifyProjectAccessByProjectPidOrThrow(projectPid);
+  const currentMember = await prisma.projectMember.findUnique({
+    where: { projectId_userId: { projectId: project.id, userId } },
+  });
+  if (!currentMember) throw new Error("Member not found");
+
+  if (!isBiggerProjectRole(userRole, currentMember.role))
+    throw new Error("Forbidden");
+
+  await prisma.projectMember.update({
+    where: { projectId_userId: { projectId: project.id, userId } },
+    data: { role: newMemberRole },
   });
 };
