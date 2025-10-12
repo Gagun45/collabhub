@@ -29,19 +29,21 @@ const ProjectCard = ({ project, role }: Props) => {
   return (
     <Card className="w-full overflow-x-hidden">
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span>Project members:</span>
-          <MembersAvatars amountToShow={2} memberAvatars={memberAvatars} />
+        <div className="flex gap-2 flex-col">
+          <div className="flex items-center flex-wrap">
+            <span>Project members:</span>
+            <MembersAvatars amountToShow={2} memberAvatars={memberAvatars} />
+          </div>
 
           {isAtLeastProjectAdmin(role) && (
-            <>
+            <div className="flex items-center gap-2 flex-wrap">
               <AddMembersToProject projectTitle={title} />
               <ManageProjectMembers
                 members={project.ProjectMember}
                 projectTitle={title}
                 currentUserRole={role}
               />
-            </>
+            </div>
           )}
         </div>
         <div className="flex items-center">
