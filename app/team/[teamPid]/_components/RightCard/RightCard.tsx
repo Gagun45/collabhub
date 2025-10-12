@@ -34,6 +34,14 @@ const RightCard = () => {
         <CardContent className="space-y-4">Choose a project</CardContent>
       </Card>
     );
+  if (data?.project?.projectPid !== projectPid)
+    return (
+      <Card className="w-full">
+        <CardContent className="space-y-4">
+          <LoadingIndicator />
+        </CardContent>
+      </Card>
+    );
 
   if (!data || !data.project || !data.role)
     return (

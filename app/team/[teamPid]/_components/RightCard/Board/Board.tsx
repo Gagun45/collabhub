@@ -26,11 +26,11 @@ import { usePidContext } from "../../ProjectPidContext";
 
 const Board = () => {
   const { projectPid } = usePidContext();
-  const { data: board, isLoading: BoardIsLoading } = useGetKanbanBoardQuery({
+  const { data: board, isLoading } = useGetKanbanBoardQuery({
     projectPid,
   });
-  const [columns, setColumns] = useState<Column[]>([]);
-  const [tasks, setTasks] = useState<TaskType[]>([]);
+  const [columns, setColumns] = useState<Column[]>(board?.columns ?? []);
+  const [tasks, setTasks] = useState<TaskType[]>(board?.tasks ?? []);
   useEffect(() => {
     if (!board) return;
     setColumns(board.columns);
@@ -49,7 +49,6 @@ const Board = () => {
     useSensor(KeyboardSensor),
     useSensor(TouchSensor, { activationConstraint: { distance: 5 } })
   );
-  if (!board) return null;
   const onDragEnd = (e: DragEndEvent) => {
     setActiveTask(null);
     setActiveColumn(null);
@@ -180,7 +179,7 @@ const Board = () => {
     }
   };
 
-  if (BoardIsLoading) return <LoadingIndicator />;
+  if (isLoading) return <LoadingIndicator />;
 
   return (
     <DndContext
@@ -189,7 +188,9 @@ const Board = () => {
       sensors={sensors}
     >
       <div className="flex gap-4 overflow-x-auto">
-        {columns.length === 0 && <span>No columns added yet!</span>}
+        {board && board.columns.length === 0 && columns.length === 0 && (
+          <span>No columns added yet!</span>
+        )}
         <SortableContext items={columns.map((c) => c.columnPid)}>
           {columns
             .slice()
