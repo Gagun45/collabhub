@@ -36,7 +36,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
   if (isDragging)
     return (
       <div
-        className="w-80 opacity-35 rounded-md flex flex-col gap-2 pb-2 shrink-0 border-2 overflow-hidden border-blue-400"
+        className="w-7/8 min-w-80 max-w-84 opacity-35 rounded-md flex flex-col gap-2 pb-2 shrink-0 border-2 overflow-hidden border-blue-400"
         ref={setNodeRef}
         style={style}
       >
