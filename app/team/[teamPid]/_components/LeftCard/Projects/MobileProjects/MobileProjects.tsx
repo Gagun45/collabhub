@@ -7,18 +7,22 @@ import {
 } from "@/components/ui/select";
 import type { Project } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { usePidContext } from "../../../ProjectPidContext";
 
 interface Props {
   projects: Project[];
 }
 
 const MobileProjects = ({ projects }: Props) => {
+  const { projectPid } = usePidContext();
   const router = useRouter();
+  const validPids = projects.map((pr) => pr.projectPid);
+  const fallbackPid = validPids.includes(projectPid ?? "") ? projectPid : "";
   const onChange = (projectPid: string) => {
     router.push(`?projectPid=${projectPid}`);
   };
   return (
-    <Select onValueChange={(value) => onChange(value)}>
+    <Select onValueChange={(value) => onChange(value)} value={fallbackPid}>
       <SelectTrigger className="w-full xl:hidden">
         <SelectValue placeholder="Choose a project" />
       </SelectTrigger>

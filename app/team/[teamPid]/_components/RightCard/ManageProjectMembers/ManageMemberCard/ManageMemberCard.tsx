@@ -34,10 +34,8 @@ const ManageMemberCard = ({ member, currentUserRole }: Props) => {
     }
   };
   return (
-    <div className="flex items-center gap-2 border-b-2">
-      <span className="break-all">
-        {username} ({memberRole})
-      </span>
+    <div className="flex items-center gap-2">
+      <span className="break-all text-sm">{username}</span>
       {isSuperAdmin && memberRole !== "SUPERADMIN" && (
         <EditMemberRole memberRole={memberRole} userId={member.userId} />
       )}

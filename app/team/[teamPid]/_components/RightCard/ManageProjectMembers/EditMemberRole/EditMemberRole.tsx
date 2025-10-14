@@ -25,7 +25,7 @@ const EditMemberRole = ({ memberRole, userId }: Props) => {
     } catch {}
   };
   return (
-    <Button disabled={loading} onClick={onEdit}>
+    <Button disabled={loading} onClick={onEdit} className="ml-auto">
       Make {memberRole === "ADMIN" ? "user" : "admin"}
     </Button>
   );

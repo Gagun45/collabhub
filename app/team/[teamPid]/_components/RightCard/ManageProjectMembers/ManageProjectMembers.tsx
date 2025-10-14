@@ -24,24 +24,56 @@ const ManageProjectMembers = ({
   projectTitle,
   currentUserRole,
 }: Props) => {
+  const superadmins = members.filter((m) => m.role === "SUPERADMIN");
+  const admins = members.filter((m) => m.role === "ADMIN");
+  const users = members.filter((m) => m.role === "USER");
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button>Manage members</Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="!max-w-4xl">
         <SheetHeader>
           <SheetTitle>{projectTitle}</SheetTitle>
           <SheetDescription>Managing members</SheetDescription>
         </SheetHeader>
         <SheetBody className="space-y-2">
-          {members.map((tm) => (
-            <ManageMemberCard
-              key={tm.userId}
-              member={tm}
-              currentUserRole={currentUserRole}
-            />
-          ))}
+          <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/30 p-3">
+            <span className="font-medium text-sm text-muted-foreground">
+              Superadmins - {superadmins.length}
+            </span>
+            {superadmins.map((tm) => (
+              <ManageMemberCard
+                key={tm.userId}
+                member={tm}
+                currentUserRole={currentUserRole}
+              />
+            ))}
+          </div>
+          <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/30 p-3">
+            <span className="font-medium text-sm text-muted-foreground">
+              Admins - {admins.length}
+            </span>
+            {admins.map((tm) => (
+              <ManageMemberCard
+                key={tm.userId}
+                member={tm}
+                currentUserRole={currentUserRole}
+              />
+            ))}
+          </div>
+          <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/30 p-3">
+            <span className="font-medium text-sm text-muted-foreground">
+              Users - {users.length}
+            </span>
+            {users.map((tm) => (
+              <ManageMemberCard
+                key={tm.userId}
+                member={tm}
+                currentUserRole={currentUserRole}
+              />
+            ))}
+          </div>
         </SheetBody>
       </SheetContent>
     </Sheet>
