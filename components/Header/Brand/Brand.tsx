@@ -9,9 +9,7 @@ const Brand = () => {
       transition={{ type: "spring", stiffness: 300 }}
       className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-wide"
     >
-      <Link href={"/"} className="text-white">
-        Collab Hub
-      </Link>
+      <Link href={"/"}>Collab Hub</Link>
     </motion.div>
   );
 };

@@ -25,7 +25,7 @@ const Sidebar = () => {
           <MenuIcon />
         </Button>
       </SheetTrigger>
-      <SheetContent side={"left"} className="p-0">
+      <SheetContent side={"left"} className="p-0 gap-0">
         <SheetHeader className="h-32 bg-blue-400 flex items-center justify-center">
           <Link href={"/"}>
             <SheetTitle className="text-4xl tracking-widest">
@@ -34,7 +34,7 @@ const Sidebar = () => {
           </Link>
         </SheetHeader>
 
-        <SheetBody className="grow p-0">
+        <SheetBody className="p-0">
           <MyTeamsSidebar setIsOpen={setIsOpen} />
         </SheetBody>
 

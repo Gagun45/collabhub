@@ -46,7 +46,7 @@ const Features = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.4 }}
-      className="max-w-6xl mx-auto px-6 grid grid-cols-2 xl:grid-cols-4 gap-8"
+      className="max-w-6xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8"
     >
       {FEATURES.map((f) => (
         <motion.div key={f.title} className="max-w-96">
