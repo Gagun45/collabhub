@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <SessionProvider>
         <ReduxProvider>
-          <body className={`${inter.className} antialiased`}>
+          <body className={`${inter.className} antialiased light`}>
             <Toaster richColors/>
             <Header />
             {children}

@@ -50,7 +50,7 @@ const Task = ({ task }: Props) => {
   if (isDragging)
     return (
       <div
-        className="bg-blue-400 opacity-35 outline-4 outline-blue-600 rounded-md px-2 py-4 flex items-center gap-2"
+        className="bg-main opacity-35 outline-4 outline-blue-600 rounded-md px-2 py-4 flex items-center gap-2"
         ref={setNodeRef}
         style={style}
       >
@@ -82,7 +82,7 @@ const Task = ({ task }: Props) => {
     );
   return (
     <div
-      className="bg-blue-400 rounded-md px-2 py-4 flex items-center gap-2"
+      className="bg-main rounded-md px-2 py-4 flex items-center gap-2"
       ref={setNodeRef}
       style={style}
     >

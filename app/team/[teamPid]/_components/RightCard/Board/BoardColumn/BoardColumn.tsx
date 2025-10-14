@@ -40,7 +40,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
         ref={setNodeRef}
         style={style}
       >
-        <div className="flex items-center bg-blue-400 px-1 py-4 gap-2">
+        <div className="flex items-center bg-main px-1 py-4 gap-2">
           <Button
             className="size-6 cursor-grab"
             variant={"ghost"}
@@ -75,7 +75,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
       ref={setNodeRef}
       style={style}
     >
-      <div className="flex items-center bg-blue-400 px-1 py-4 gap-2">
+      <div className="flex items-center bg-main px-1 py-4 gap-2">
         <Button
           className="size-6 cursor-grab"
           variant={"ghost"}

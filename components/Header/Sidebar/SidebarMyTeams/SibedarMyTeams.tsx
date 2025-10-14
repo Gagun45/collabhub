@@ -17,7 +17,7 @@ const MyTeamsSidebar = ({ setIsOpen }: Props) => {
           data.teams.map((team) => (
             <Link
               onClick={() => setIsOpen(false)}
-              className="text-xl font-semibold w-full px-4 py-2 hover:bg-slate-900 hover:text-white rounded-xl"
+              className="text-xl font-semibold w-full px-4 py-2 hover:bg-secondary-foreground hover:text-primary-foreground rounded-xl"
               key={team.teamPid}
               href={`/team/${team.teamPid}`}
             >

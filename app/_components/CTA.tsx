@@ -13,10 +13,7 @@ const CTA = () => {
       <motion.h2 className="text-3xl font-semibold">
         Start collaborating with your team today.
       </motion.h2>
-      <Button
-        asChild
-        className="bg-slate-950 text-xl p-6 rounded-xl hover:bg-slate-900"
-      >
+      <Button asChild className="text-xl p-6 rounded-xl">
         <Link href="/login">Create Your Free Account</Link>
       </Button>
     </motion.section>

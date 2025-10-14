@@ -52,8 +52,8 @@ const Features = () => {
         <motion.div key={f.title} className="max-w-96">
           <Card className="bg-slate-900 h-full border-slate-800 hover:border-slate-700 hover:shadow-lg transition">
             <CardContent className="p-6 text-center space-y-3">
-              <f.icon className="w-10 h-10 text-blue-400 mx-auto" />
-              <h3 className="font-semibold text-lg text-blue-400">{f.title}</h3>
+              <f.icon className="w-10 h-10 text-main mx-auto" />
+              <h3 className="font-semibold text-lg text-main">{f.title}</h3>
               <p className="text-slate-400 text-sm">{f.desc}</p>
             </CardContent>
           </Card>

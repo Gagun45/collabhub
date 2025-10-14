@@ -29,7 +29,7 @@ const Hero = () => {
         <Button
           size={"lg"}
           asChild
-          className="bg-slate-950 text-xl md:text-2xl p-6 md:p-8 rounded-4xl hover:bg-slate-900"
+          className="text-xl md:text-2xl p-6 md:p-8 rounded-4xl"
         >
           <Link href={"/my-teams"}>Get Started</Link>
         </Button>

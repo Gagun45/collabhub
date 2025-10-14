@@ -26,7 +26,7 @@ const Sidebar = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side={"left"} className="p-0 gap-0">
-        <SheetHeader className="h-32 bg-blue-400 flex items-center justify-center">
+        <SheetHeader className="h-32 bg-main flex items-center justify-center">
           <Link href={"/"}>
             <SheetTitle className="text-4xl tracking-widest">
               CollabHub
@@ -38,7 +38,7 @@ const Sidebar = () => {
           <MyTeamsSidebar setIsOpen={setIsOpen} />
         </SheetBody>
 
-        <SheetFooter className="h-32 bg-blue-400 flex items-center !justify-center">
+        <SheetFooter className="h-32 bg-main flex items-center !justify-center">
           <UserMenu />
         </SheetFooter>
       </SheetContent>
