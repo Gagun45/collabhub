@@ -39,7 +39,7 @@ const Sidebar = () => {
           <MyTeamsSidebar setIsOpen={setIsOpen} />
         </SheetBody>
 
-        <SheetFooter className="h-32 bg-main flex items-center !justify-evenly">
+        <SheetFooter className="h-32 bg-main flex !flex-row items-center !justify-evenly">
           <UserMenu />
           <ThemeToggle />
         </SheetFooter>

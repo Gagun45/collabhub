@@ -23,7 +23,7 @@ const Hero = () => {
       >
         <p className="text-lg text-accent-foreground max-w-2xl mx-auto">
           A modern workspace to manage projects, tasks, and teams — all in one
-          place.
+          place
         </p>
 
         <Button
