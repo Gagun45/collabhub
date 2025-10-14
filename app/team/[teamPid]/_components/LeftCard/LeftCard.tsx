@@ -29,12 +29,9 @@ const LeftCard = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 flex flex-col">
-        <div className="flex flex-col">
-          <span>My role: {role}</span>
-          <div className="flex items-center gap-2">
-            <span>Team members:</span>
-            <MembersAvatars amountToShow={5} memberAvatars={memberAvatars} />
-          </div>
+        <div className="flex items-center gap-2">
+          <span>Team members:</span>
+          <MembersAvatars amountToShow={5} memberAvatars={memberAvatars} />
         </div>
         <Projects />
         {isAtLeastProjectAdmin(role) && <NewProjectDialog />}

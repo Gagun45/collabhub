@@ -30,7 +30,7 @@ const ProjectCard = ({ project, role }: Props) => {
     <Card className="w-full overflow-x-hidden">
       <CardContent className="space-y-4">
         <div className="flex gap-2 flex-col">
-          <div className="flex items-center flex-wrap">
+          <div className="flex items-center flex-wrap gap-2">
             <span>Project members:</span>
             <MembersAvatars amountToShow={2} memberAvatars={memberAvatars} />
           </div>
