@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { useEditProjectMemberRoleMutation } from "@/redux/apis/projects.api";
 import type { $Enums } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { usePidContext } from "../../../ProjectPidContext";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface Props {
   memberRole: $Enums.ProjectRole;
@@ -25,9 +25,9 @@ const EditMemberRole = ({ memberRole, userId }: Props) => {
     } catch {}
   };
   return (
-    <Button disabled={loading} onClick={onEdit} className="ml-auto">
-      Make {memberRole === "ADMIN" ? "user" : "admin"}
-    </Button>
+    <DropdownMenuItem disabled={loading} onClick={onEdit}>
+      {memberRole === "ADMIN" ? "Remove" : "Grant"} admin rights
+    </DropdownMenuItem>
   );
 };
 export default EditMemberRole;

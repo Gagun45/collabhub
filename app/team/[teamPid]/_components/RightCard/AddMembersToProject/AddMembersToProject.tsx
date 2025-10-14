@@ -27,12 +27,12 @@ const AddMembersToProject = ({ projectTitle }: Props) => {
       <SheetTrigger asChild>
         <Button>Add members</Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="!max-w-4xl">
         <SheetHeader>
           <SheetTitle>{projectTitle}</SheetTitle>
           <SheetDescription>Adding members</SheetDescription>
         </SheetHeader>
-        <SheetBody className="space-y-2">
+        <SheetBody className="space-y-4">
           {data?.members.length === 0 && <span>Everyone already added</span>}
           {data?.members &&
             data?.members.length > 0 &&

@@ -7,6 +7,13 @@ import { toast } from "sonner";
 import { usePidContext } from "../../../ProjectPidContext";
 import { isBiggerProjectRole } from "@/lib/utils";
 import EditMemberRole from "../EditMemberRole/EditMemberRole";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVerticalIcon } from "lucide-react";
 
 interface Props {
   member: Prisma.ProjectMemberGetPayload<{
@@ -34,24 +41,33 @@ const ManageMemberCard = ({ member, currentUserRole }: Props) => {
     }
   };
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex gap-2 items-center">
       <span className="break-all text-sm">{username}</span>
-      {isSuperAdmin && memberRole !== "SUPERADMIN" && (
-        <EditMemberRole memberRole={memberRole} userId={member.userId} />
-      )}
-      {isBiggerProjectRole(currentUserRole, memberRole) && (
-        <Button
-          variant={"destructive"}
-          className="ml-auto"
-          disabled={loading}
-          onClick={() => {
-            setLoading(true);
-            onDelete();
-          }}
-        >
-          {loading ? "Loading..." : "Remove"}
-        </Button>
-      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="!p-0" variant={"ghost"}>
+            <MoreVerticalIcon />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {isSuperAdmin && memberRole !== "SUPERADMIN" && (
+            <EditMemberRole memberRole={memberRole} userId={member.userId} />
+          )}
+
+          {isBiggerProjectRole(currentUserRole, memberRole) && (
+            <DropdownMenuItem
+              variant={"destructive"}
+              disabled={loading}
+              onClick={() => {
+                setLoading(true);
+                onDelete();
+              }}
+            >
+              {loading ? "Loading..." : "Remove"}
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
