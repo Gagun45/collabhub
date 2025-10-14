@@ -5,6 +5,7 @@ import Header from "@/components/Header/Header";
 import { SessionProvider } from "next-auth/react";
 import ReduxProvider from "@/providers/ReduxProvider";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,13 +20,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <SessionProvider>
         <ReduxProvider>
           <body className={`${inter.className} antialiased light`}>
-            <Toaster richColors />
-            <Header />
-            {children}
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Toaster richColors />
+              <Header />
+              {children}
+            </ThemeProvider>
           </body>
         </ReduxProvider>
       </SessionProvider>

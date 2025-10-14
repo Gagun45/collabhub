@@ -15,6 +15,7 @@ import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import MyTeamsSidebar from "./SidebarMyTeams/SibedarMyTeams";
+import ThemeToggle from "@/components/General/ThemeToggle/ThemeToggle";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,8 +39,9 @@ const Sidebar = () => {
           <MyTeamsSidebar setIsOpen={setIsOpen} />
         </SheetBody>
 
-        <SheetFooter className="h-32 bg-main flex items-center !justify-center">
+        <SheetFooter className="h-32 bg-main flex items-center !justify-evenly">
           <UserMenu />
+          <ThemeToggle />
         </SheetFooter>
       </SheetContent>
     </Sheet>
