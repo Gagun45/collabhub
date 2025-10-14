@@ -71,11 +71,11 @@ const BoardColumn = ({ column, tasks }: Props) => {
     );
   return (
     <div
-      className="w-full min-w-80 max-w-84 rounded-md flex flex-col gap-2 pb-2 shrink-0 border-2 overflow-hidden border-blue-400"
+      className="w-full min-w-80 max-w-84 rounded-md flex flex-col gap-2 pb-4 shrink-0 border-2 overflow-hidden border-blue-400"
       ref={setNodeRef}
       style={style}
     >
-      <div className="flex items-center bg-main px-1 py-4 gap-2">
+      <div className="flex items-center bg-main p-4 gap-2">
         <Button
           className="size-6 cursor-grab"
           variant={"ghost"}
@@ -101,7 +101,7 @@ const BoardColumn = ({ column, tasks }: Props) => {
         </Button>
       </div>
 
-      <div className="w-full flex flex-col gap-4 px-4 py-2">
+      <div className="w-full flex flex-col gap-4 p-4">
         {tasks.length === 0 && (
           <span className="text-center p-2">No tasks yet!</span>
         )}

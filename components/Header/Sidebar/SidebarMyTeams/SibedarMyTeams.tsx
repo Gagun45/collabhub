@@ -11,7 +11,7 @@ const MyTeamsSidebar = ({ setIsOpen }: Props) => {
   const { data } = useGetMyTeamsQuery();
   return (
     <ScrollArea className="h-[calc(100vh-256px)]">
-      <div className="flex flex-col py-4 px-2 gap-4 border-b-2">
+      <div className="flex flex-col py-4 px-2 gap-4 border-t-2 border-b-2">
         <h2 className="text-center text-3xl font-bold">My teams</h2>
         {data?.teams &&
           data.teams.map((team) => (

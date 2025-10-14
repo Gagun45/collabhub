@@ -25,7 +25,7 @@ const Sidebar = () => {
           <MenuIcon />
         </Button>
       </SheetTrigger>
-      <SheetContent side={"left"} className="p-0 gap-0">
+      <SheetContent side={"left"} className="p-0 gap-0 bg-main">
         <SheetHeader className="h-32 bg-main flex items-center justify-center">
           <Link href={"/"}>
             <SheetTitle className="text-4xl tracking-widest">

@@ -9,7 +9,7 @@ const MyTeamCard = ({ team }: Props) => {
   return (
     <Link
       href={`/team/${team.teamPid}`}
-      className="flex flex-col border-2 p-4 border-slate-950 rounded-xl"
+      className="flex flex-col border-2 p-4 border-foreground rounded-xl"
     >
       <h3 className="font-semibold text-xl">{team.name}</h3>
 

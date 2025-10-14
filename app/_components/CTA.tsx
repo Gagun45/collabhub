@@ -8,7 +8,8 @@ const CTA = () => {
     <motion.section
       className="text-center py-24 space-y-12"
       initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.9 }}
     >
       <motion.h2 className="text-3xl font-semibold">
         Start collaborating with your team today.

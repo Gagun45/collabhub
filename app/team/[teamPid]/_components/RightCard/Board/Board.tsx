@@ -187,7 +187,7 @@ const Board = () => {
       onDragEnd={onDragEnd}
       sensors={sensors}
     >
-      <div className="flex gap-4 overflow-x-auto">
+      <div className="flex gap-4 overflow-x-auto py-8">
         {board && board.columns.length === 0 && columns.length === 0 && (
           <span>No columns added yet!</span>
         )}
