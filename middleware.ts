@@ -17,7 +17,7 @@ export default auth(async function middleware(req) {
   if (isLoggedIn && isAuthRoute)
     return NextResponse.redirect(new URL("/", req.nextUrl));
   if (!isLoggedIn && isProtectedRoute)
-    return NextResponse.redirect(new URL("/", req.nextUrl));
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
 });
 
 export const config = {
