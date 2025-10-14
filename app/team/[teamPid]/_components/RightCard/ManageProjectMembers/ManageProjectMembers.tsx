@@ -30,12 +30,12 @@ const ManageProjectMembers = ({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button>Manage members</Button>
+        <Button>View all</Button>
       </SheetTrigger>
       <SheetContent className="!max-w-4xl">
         <SheetHeader>
           <SheetTitle>{projectTitle}</SheetTitle>
-          <SheetDescription>Managing members</SheetDescription>
+          <SheetDescription>All project users</SheetDescription>
         </SheetHeader>
         <SheetBody className="space-y-2">
           <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-muted/30 p-3">

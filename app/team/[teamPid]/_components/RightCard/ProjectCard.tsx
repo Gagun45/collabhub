@@ -33,18 +33,17 @@ const ProjectCard = ({ project, role }: Props) => {
           <div className="flex items-center flex-wrap gap-2">
             <span>Project members:</span>
             <MembersAvatars amountToShow={2} memberAvatars={memberAvatars} />
+            <ManageProjectMembers
+              members={project.ProjectMember}
+              projectTitle={title}
+              currentUserRole={role}
+            />
+            {isAtLeastProjectAdmin(role) && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <AddMembersToProject projectTitle={title} />
+              </div>
+            )}
           </div>
-
-          {isAtLeastProjectAdmin(role) && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <AddMembersToProject projectTitle={title} />
-              <ManageProjectMembers
-                members={project.ProjectMember}
-                projectTitle={title}
-                currentUserRole={role}
-              />
-            </div>
-          )}
         </div>
         <div className="flex items-center">
           <EditableProjectTitle role={role} projectTitle={project.title} />

@@ -3,6 +3,7 @@ import type { $Enums } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { usePidContext } from "../../../ProjectPidContext";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   memberRole: $Enums.ProjectRole;
@@ -25,8 +26,14 @@ const EditMemberRole = ({ memberRole, userId }: Props) => {
     } catch {}
   };
   return (
-    <DropdownMenuItem disabled={loading} onClick={onEdit}>
-      {memberRole === "ADMIN" ? "Remove" : "Grant"} admin rights
+    <DropdownMenuItem className="p-0" onSelect={(e) => e.preventDefault()}>
+      <Button variant={"ghost"} disabled={loading} onClick={onEdit}>
+        {loading
+          ? "Loading..."
+          : memberRole === "ADMIN"
+          ? "Revoke admin rights"
+          : "Grant admin rights"}{" "}
+      </Button>
     </DropdownMenuItem>
   );
 };
