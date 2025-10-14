@@ -9,7 +9,7 @@ const DesktopProjects = ({ projects }: Props) => {
   return (
     <div className="hidden xl:flex flex-col gap-4">
       {projects.length === 0 && (
-        <span className="text-center">The team has no projects yet!</span>
+        <span className="italic">The team has no projects yet!</span>
       )}
       {projects.map((project) => (
         <ProjectLink key={project.id} project={project} />

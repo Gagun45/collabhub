@@ -14,7 +14,7 @@ const ProjectLink = ({ project }: Props) => {
       key={project.id}
       href={`?projectPid=${project.projectPid}`}
       className={`${
-        isActive ? "bg-slate-500 outline-2" : "bg-slate-100 hover:bg-slate-300"
+        isActive ? "bg-slate-500 text-white outline-2" : "bg-slate-200 hover:bg-slate-500"
       } p-2 rounded-md line-clamp-1`}
     >
       {project.title}

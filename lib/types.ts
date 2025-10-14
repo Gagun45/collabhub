@@ -51,3 +51,7 @@ export interface MemberAvatarInterface {
   avatarUrl: string;
   username: string;
 }
+
+export type MyTeamType = Prisma.TeamGetPayload<{
+  include: { _count: { select: { TeamMembers: true } } };
+}>;

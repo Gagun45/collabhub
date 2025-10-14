@@ -8,7 +8,7 @@ const LoginRightCard = () => {
     signIn("google");
   };
   return (
-    <div className="bg-slate-900/40 px-8 py-16 rounded-2xl shadow-lg max-w-sm w-full text-center space-y-12 md:space-y-6">
+    <div className="bg-transparent px-8 py-16 rounded-2xl shadow-2xl md:shadow-none max-w-sm w-full text-center space-y-12">
       <Image
         src="/file.svg"
         alt="CollabHub Logo"

@@ -1,17 +1,20 @@
-import type { Team } from "@prisma/client";
+import type { MyTeamType } from "@/lib/types";
 import Link from "next/link";
 
 interface Props {
-  team: Team;
+  team: MyTeamType;
 }
 
 const MyTeamCard = ({ team }: Props) => {
   return (
-    <div className="w-full border-2 border-black space-x-4">
-      <span>{team.name}</span>
-      <Link href={`/team/${team.teamPid}`}>Goto</Link>
-      <span>{team.inviteToken}</span>
-    </div>
+    <Link
+      href={`/team/${team.teamPid}`}
+      className="flex flex-col border-2 p-4 border-slate-950 rounded-xl"
+    >
+      <h3 className="font-semibold text-xl">{team.name}</h3>
+
+      <span>Members: {team._count.TeamMembers}</span>
+    </Link>
   );
 };
 export default MyTeamCard;

@@ -5,11 +5,12 @@ import {
 } from "@/lib/actions/team.actions";
 import { UNEXPECTED_ERROR } from "@/lib/constants";
 import type {
+  MyTeamType,
   newTeamSchemaType,
   SuccessAndMessageType,
   TeamType,
 } from "@/lib/types";
-import type { $Enums, Team } from "@prisma/client";
+import type { $Enums } from "@prisma/client";
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const teamsApi = createApi({
@@ -32,7 +33,10 @@ export const teamsApi = createApi({
       },
       invalidatesTags: ["myTeams"],
     }),
-    getMyTeams: builder.query<SuccessAndMessageType & { teams: Team[] }, void>({
+    getMyTeams: builder.query<
+      SuccessAndMessageType & { teams: MyTeamType[] },
+      void
+    >({
       queryFn: async () => {
         try {
           const result = await getMyTeams();
@@ -45,7 +49,10 @@ export const teamsApi = createApi({
       providesTags: ["myTeams"],
     }),
     getTeamByTeamPid: builder.query<
-      SuccessAndMessageType & { team: TeamType | null; role: $Enums.TeamRole | null },
+      SuccessAndMessageType & {
+        team: TeamType | null;
+        role: $Enums.TeamRole | null;
+      },
       { teamPid: string }
     >({
       queryFn: async ({ teamPid }) => {

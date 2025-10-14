@@ -3,6 +3,7 @@
 import { nanoid } from "nanoid";
 import { prisma } from "../prisma";
 import type {
+  MyTeamType,
   newTeamSchemaType,
   SuccessAndMessageType,
   TeamType,
@@ -12,7 +13,7 @@ import {
   getAuthUserOrThrow,
   verifyTeamAccessByTeamPidOrThrow,
 } from "./helper";
-import type { $Enums, Team } from "@prisma/client";
+import type { $Enums } from "@prisma/client";
 import { SMTH_WENT_WRONG } from "../constants";
 
 export const createNewTeam = async (
@@ -40,13 +41,14 @@ export const createNewTeam = async (
 };
 
 export const getMyTeams = async (): Promise<
-  SuccessAndMessageType & { teams: Team[] }
+  SuccessAndMessageType & { teams: MyTeamType[] }
 > => {
   try {
     const user = await getAuthUser();
     if (!user) return { success: false, message: "Authorized only", teams: [] };
     const teams = await prisma.team.findMany({
       where: { TeamMembers: { some: { userId: user.id } } },
+      include: { _count: { select: { TeamMembers: true } } },
     });
     return { success: true, message: "My teams fetched", teams };
   } catch (error) {

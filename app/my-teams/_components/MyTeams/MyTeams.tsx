@@ -15,6 +15,7 @@ const MyTeams = () => {
   if (isError) return <div>{error as string}</div>;
   if (!data) return <div>Unexpected error</div>;
   const { teams } = data;
+  if (teams.length === 0) return <span>You don`t have any teams yet</span>;
   return (
     <>
       {teams.map((team) => (

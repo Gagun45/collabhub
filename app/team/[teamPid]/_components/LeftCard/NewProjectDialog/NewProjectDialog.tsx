@@ -16,6 +16,7 @@ import { useDirection } from "@radix-ui/react-direction";
 import { useState } from "react";
 import { toast } from "sonner";
 import { usePidContext } from "../../ProjectPidContext";
+import { Plus } from "lucide-react";
 
 const NewProjectDialog = () => {
   const { teamPid } = usePidContext();
@@ -36,7 +37,10 @@ const NewProjectDialog = () => {
   return (
     <AlertDialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button>Create new project</Button>
+        <Button>
+          <Plus className="size-4" />
+          Create project
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent dir={direction}>
         <AlertDialogHeader>

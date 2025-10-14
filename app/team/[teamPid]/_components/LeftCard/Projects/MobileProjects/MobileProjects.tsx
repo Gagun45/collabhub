@@ -23,6 +23,10 @@ const MobileProjects = ({ projects }: Props) => {
   useEffect(() => {
     router.replace(`?projectPid=${localPid}`);
   }, [localPid, router]);
+  if (projects.length === 0)
+    return (
+      <span className="italic xl:hidden">The team has no projects yet!</span>
+    );
   return (
     <Select onValueChange={(value) => setLocalPid(value)} value={fallbackPid}>
       <SelectTrigger className="w-full xl:hidden">

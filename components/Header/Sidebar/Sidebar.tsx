@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetBody,
@@ -12,16 +11,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import UserMenu from "@/components/UserMenu/UserMenu";
+import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import MyTeamsSidebar from "./SidebarMyTeams/SibedarMyTeams";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant={"outline"} className="block xl:hidden">
-          Open sheet
+        <Button className="block xl:hidden">
+          <MenuIcon />
         </Button>
       </SheetTrigger>
       <SheetContent side={"left"} className="p-0">
@@ -34,9 +35,7 @@ const Sidebar = () => {
         </SheetHeader>
 
         <SheetBody className="grow p-0">
-          <ScrollArea className="h-[calc(100vh-256px)]">
-            <Link href={"/"}>Home</Link>
-          </ScrollArea>
+          <MyTeamsSidebar setIsOpen={setIsOpen} />
         </SheetBody>
 
         <SheetFooter className="h-32 bg-blue-400 flex items-center !justify-center">

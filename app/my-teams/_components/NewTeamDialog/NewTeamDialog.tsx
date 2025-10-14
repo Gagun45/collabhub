@@ -13,6 +13,7 @@ import NewTeamForm from "@/forms/NewTeamForm/NewTeamForm";
 import type { newTeamSchemaType } from "@/lib/types";
 import { useCreateNewTeamMutation } from "@/redux/apis/teams.api";
 import { useDirection } from "@radix-ui/react-direction";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -34,7 +35,11 @@ const NewTeamDialog = () => {
   return (
     <AlertDialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button>Create new team</Button>
+        <Button>
+          {" "}
+          <Plus className="size-4" />
+          Create team
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent dir={direction}>
         <AlertDialogHeader>
