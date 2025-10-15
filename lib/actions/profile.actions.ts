@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "../prisma";
-import { getAuthUser } from "./helper";
+import { getAuthUser, getAuthUserOrThrow } from "./helper";
 import type {
   editProfileSchemaType,
   ProfilePageDataType,
@@ -77,5 +77,26 @@ export const updateProfilePageData = async (
       return { success: false, message: "Username already taken" };
     }
     return { success: false, message: SMTH_WENT_WRONG };
+  }
+};
+
+export const updateAvatarUrl = async (
+  userPid: string,
+  avatarUrl: string
+): Promise<SuccessAndMessageType> => {
+  const user = await getAuthUserOrThrow();
+  try {
+    const authPidInfo = await prisma.userInformation.findUnique({
+      where: { userId: user.id },
+    });
+    const authPid = authPidInfo?.userPid;
+    if (userPid !== authPid) return { success: false, message: "Denied" };
+    await prisma.userInformation.update({
+      where: { userPid },
+      data: { avatarUrl },
+    });
+    return { success: true, message: "Avatar url updated" };
+  } catch {
+    return { message: SMTH_WENT_WRONG, success: false };
   }
 };

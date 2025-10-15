@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import DefaultAvatar from "@/public/default-avatar.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EditProfileForm from "@/forms/EditProfileForm/EditProfileForm";
 import { useGetProfilePageDataQuery } from "@/redux/apis/profile.api";
 import LoadingIndicator from "@/components/General/LoadingIndicator";
+import AvatarCard from "./_components/AvatarCard/AvatarCard";
 
 const ProfilePage = () => {
   const {
@@ -41,22 +40,7 @@ const ProfilePage = () => {
     <main className="space-y-8">
       <h1>Profile page</h1>
       <div className="flex flex-col items-center w-full gap-12 lg:flex-row lg:justify-center lg:items-start">
-        <Card className="w-full max-w-2xl lg:w-72 shrink-0">
-          <CardContent className="space-y-4">
-            <div className="relative size-36 lg:size-48 mx-auto">
-              <Image
-                priority
-                src={
-                  user.UserInformation?.avatarUrl ?? user.image ?? DefaultAvatar
-                }
-                alt="Profile avatar"
-                sizes="(max-width: 640px) 144px, 192px"
-                fill
-              />
-            </div>
-            <h2 className="text-center break-words">{user.email}</h2>
-          </CardContent>
-        </Card>
+        <AvatarCard user={user} />
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="tracking-wider">

@@ -1,8 +1,10 @@
 import {
   getAvatarUrl,
   getProfilePageData,
+  updateAvatarUrl,
   updateProfilePageData,
 } from "@/lib/actions/profile.actions";
+import { UNEXPECTED_ERROR } from "@/lib/constants";
 import type {
   editProfileSchemaType,
   ProfilePageDataType,
@@ -59,6 +61,23 @@ export const profileApi = createApi({
       },
       invalidatesTags: ["profilePageData"],
     }),
+    updateAvatarUrl: builder.mutation<
+      SuccessAndMessageType,
+      { userPid: string; url: string }
+    >({
+      queryFn: async ({ url, userPid }) => {
+        try {
+          const result = await updateAvatarUrl(userPid, url);
+          if (!result.success) {
+            return { error: result.message };
+          }
+          return { data: result };
+        } catch {
+          return { error: UNEXPECTED_ERROR };
+        }
+      },
+      invalidatesTags: ["avatarUrl", "profilePageData"],
+    }),
   }),
 });
 
@@ -66,4 +85,5 @@ export const {
   useGetAvatarUrlQuery,
   useGetProfilePageDataQuery,
   useUpdateProfilePageDataMutation,
+  useUpdateAvatarUrlMutation,
 } = profileApi;

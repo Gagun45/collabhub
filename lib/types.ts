@@ -11,8 +11,12 @@ export type newTeamSchemaType = z.infer<typeof newTeamSchema>;
 export type newProjectSchemaType = z.infer<typeof newProjectSchema>;
 
 export type ProfilePageDataType = SuccessAndMessageType & {
-  data: Prisma.UserGetPayload<{ include: { UserInformation: true } }> | null;
+  data: UserType | null;
 };
+
+export type UserType = Prisma.UserGetPayload<{
+  include: { UserInformation: true };
+}>;
 
 export type TeamType = Prisma.TeamGetPayload<{
   include: {
