@@ -9,13 +9,9 @@ const LoginRightCard = () => {
   };
   return (
     <div className="bg-transparent px-8 py-16 rounded-2xl shadow-2xl md:shadow-none max-w-sm w-full text-center space-y-12">
-      <Image
-        src="/file.svg"
-        alt="CollabHub Logo"
-        width={128}
-        height={128}
-        className="mx-auto"
-      />
+      <div className="relative size-64 mx-auto">
+        <Image priority src="/logo.png" alt="CollabHub Logo" fill />
+      </div>
       <h2 className="text-2xl font-semibold">Sign in to your account</h2>
 
       <Button

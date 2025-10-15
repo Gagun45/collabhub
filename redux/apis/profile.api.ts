@@ -76,6 +76,34 @@ export const profileApi = createApi({
           return { error: UNEXPECTED_ERROR };
         }
       },
+      onQueryStarted: async ({ url }, { dispatch, queryFulfilled }) => {
+        const patchResults = [
+          dispatch(
+            profileApi.util.updateQueryData(
+              "getAvatarUrl",
+              undefined,
+              (draft) => {
+                draft.avatarUrl = url;
+              }
+            )
+          ),
+          dispatch(
+            profileApi.util.updateQueryData(
+              "getProfilePageData",
+              undefined,
+              (draft) => {
+                if (!draft.data?.UserInformation?.avatarUrl) return;
+                draft.data.UserInformation.avatarUrl = url;
+              }
+            )
+          ),
+        ];
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResults.forEach((patch) => patch.undo());
+        }
+      },
       invalidatesTags: ["avatarUrl", "profilePageData"],
     }),
   }),
