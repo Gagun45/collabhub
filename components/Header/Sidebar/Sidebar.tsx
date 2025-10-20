@@ -22,7 +22,7 @@ const Sidebar = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button className="block xl:hidden">
+        <Button className="w-fit">
           <MenuIcon />
         </Button>
       </SheetTrigger>
@@ -39,7 +39,7 @@ const Sidebar = () => {
           <MyTeamsSidebar setIsOpen={setIsOpen} />
         </SheetBody>
 
-        <SheetFooter className="h-32 bg-main flex !flex-row items-center !justify-evenly">
+        <SheetFooter className="h-32 mt-auto bg-main flex-row items-center !justify-evenly">
           <UserMenu />
           <ThemeToggle />
         </SheetFooter>

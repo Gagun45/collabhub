@@ -15,6 +15,11 @@ import { Button, buttonVariants } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGetAvatarUrlQuery } from "@/redux/apis/profile.api";
 
+const LINKS: { title: string; href: string }[] = [
+  { href: "/profile", title: "Profile" },
+  { href: "/my-teams", title: "My teams" },
+];
+
 const UserMenu = () => {
   const { data: session } = useSession();
   const { data: avatarData } = useGetAvatarUrlQuery();
@@ -39,15 +44,15 @@ const UserMenu = () => {
         <DropdownMenuLabel>Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild className="cursor-pointer">
-            <Link href="/profile">Profile</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="cursor-pointer">
-            <Link href="/dashboard">Dashboard</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="cursor-pointer">
-            <Link href="/my-teams">My Teams</Link>
-          </DropdownMenuItem>
+          {LINKS.map((link) => (
+            <DropdownMenuItem
+              key={link.title}
+              asChild
+              className="cursor-pointer"
+            >
+              <Link href={link.href}>{link.title}</Link>
+            </DropdownMenuItem>
+          ))}
           <DropdownMenuItem>
             <Button onClick={() => signOut()}>Logout</Button>
           </DropdownMenuItem>

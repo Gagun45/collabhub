@@ -1,5 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetMyTeamsQuery } from "@/redux/apis/teams.api";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -9,6 +10,8 @@ interface Props {
 
 const MyTeamsSidebar = ({ setIsOpen }: Props) => {
   const { data } = useGetMyTeamsQuery();
+  const { status } = useSession();
+  if (status !== "authenticated") return null;
   return (
     <ScrollArea className="h-[calc(100vh-256px)]">
       <div className="flex flex-col py-4 px-2 gap-4 border-t-2 border-b-2">

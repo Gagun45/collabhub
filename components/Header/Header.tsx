@@ -5,10 +5,12 @@ import ThemeToggle from "../General/ThemeToggle/ThemeToggle";
 
 const Header = () => {
   return (
-    <header className="flex w-full items-center justify-between h-32 bg-main">
-      <Sidebar />
+    <header className="h-32 grid grid-cols-3 xl:grid-cols-2 bg-main">
+      <div className="flex items-center xl:hidden">
+        <Sidebar />
+      </div>
       <Brand />
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end gap-2">
         <ThemeToggle />
         <UserMenu />
       </div>
