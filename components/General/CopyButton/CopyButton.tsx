@@ -15,10 +15,14 @@ const CopyButton = ({ value, className }: Props) => {
   const handleCopy = async () => {
     if (!allowedToCopy) return;
     const baseUrl =
-      process.env.NODE_ENV === "development"
-        ? process.env.NEXT_PUBLIC_BASE_URL_DEV
-        : process.env.NEXT_PUBLIC_BASE_URL_PROD;
-    await navigator.clipboard.writeText(`${baseUrl}/team/invite/${value}`);
+      typeof window !== "undefined"
+        ? process.env.NODE_ENV === "development"
+          ? "http://localhost:3000"
+          : window.location.origin
+        : "https://collabhub-blush.vercel.app";
+    const inviteUrl = `${baseUrl}/team/invite/${value}`;
+
+    await navigator.clipboard.writeText(inviteUrl);
     setAllowedToCopy(false);
     const copyDelayTimeout = setTimeout(() => {
       setAllowedToCopy(true);
